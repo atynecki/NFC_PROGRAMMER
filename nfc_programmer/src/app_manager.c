@@ -2,6 +2,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "app_manager.h"
 
+app_config_t app_config;
+I2C_HandleTypeDef I2CHandle;
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  None
@@ -82,4 +85,26 @@ void system_clock_init ()
   clocked below the maximum system frequency, to update the voltage scaling value 
   regarding system frequency refer to product datasheet. */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+}
+
+void I2C_init () {
+	I2CHandle.Instance              = I2C;
+  I2CHandle.Init.AddressingMode   = I2C_ADDRESSINGMODE_10BIT;
+  I2CHandle.Init.Timing           = I2C_TIMING_400KHZ;
+  I2CHandle.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
+  I2CHandle.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  I2CHandle.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
+  I2CHandle.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
+  I2CHandle.Init.OwnAddress1      = I2C_ADDRESS;
+  I2CHandle.Init.OwnAddress2      = 0xFE;
+  if(HAL_I2C_Init(&I2CHandle) != HAL_OK)
+  {
+    /* Initialization Error */
+    Error_Handler();    
+  }
+}
+
+app_config_p get_app_config ()
+{
+	return &app_config;
 }

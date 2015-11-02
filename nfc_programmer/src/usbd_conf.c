@@ -1,43 +1,10 @@
-/**
-  ******************************************************************************
-  * @file    USB_Device/CDC_Standalone/Src/usbd_conf.c
-  * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-September-2015
-  * @brief   This file implements the USB Device library callbacks and MSP
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
-  *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
-  ******************************************************************************
-  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 #include "usbd_core.h"
 #include "app_manager.h"
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
 PCD_HandleTypeDef hpcd;
-
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 
 /*******************************************************************************
                        PCD BSP Routines
@@ -65,9 +32,15 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
  
   /* Enable USB FS Clock */
   __HAL_RCC_USB_CLK_ENABLE();
+	
+	 if(hpcd->Init.low_power_enable == 1)
+  {
+    /* Enable EXTI Line 18 for USB wakeup */
+    __HAL_USB_WAKEUP_EXTI_ENABLE_IT();    
+  } 
     
   /* Set USB FS Interrupt priority */
-  HAL_NVIC_SetPriority(USB_IRQn, 7, 0);
+  HAL_NVIC_SetPriority(USB_IRQn, 3, 0);
   
   /* Enable USB FS Interrupt */
   HAL_NVIC_EnableIRQ(USB_IRQn);
@@ -223,7 +196,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd.Init.ep0_mps = 0x40;
   hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
   hpcd.Init.speed = PCD_SPEED_FULL;
-  hpcd.Init.low_power_enable = 0;
+  hpcd.Init.low_power_enable = 1;
   
   /* Link The driver to the stack */
   hpcd.pData = pdev;
@@ -232,11 +205,9 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   /* Initialize LL Driver */
   HAL_PCD_Init(pdev->pData);
   
-  HAL_PCDEx_PMAConfig(pdev->pData , 0x00 , PCD_SNG_BUF, 0x40);
-  HAL_PCDEx_PMAConfig(pdev->pData , 0x80 , PCD_SNG_BUF, 0x80);
-  HAL_PCDEx_PMAConfig(pdev->pData , CDC_IN_EP , PCD_SNG_BUF, 0xC0);
-  HAL_PCDEx_PMAConfig(pdev->pData , CDC_OUT_EP , PCD_SNG_BUF, 0x110);
-  HAL_PCDEx_PMAConfig(pdev->pData , CDC_CMD_EP , PCD_SNG_BUF, 0x100);
+  HAL_PCDEx_PMAConfig(pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
+  HAL_PCDEx_PMAConfig(pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);
+  HAL_PCDEx_PMAConfig(pdev->pData , 0x81 , PCD_SNG_BUF, 0x100);
   
   return USBD_OK;
 }
@@ -450,5 +421,3 @@ void USBD_static_free(void *p)
 {
 
 }
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

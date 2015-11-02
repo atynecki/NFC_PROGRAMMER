@@ -1,47 +1,17 @@
-/**
-  ******************************************************************************
-  * @file    USB_Device/CDC_Standalone/Src/usbd_desc.c
-  * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-September-2015
-  * @brief   This file provides the USBD descriptors and string formating method.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
-  *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
-  ******************************************************************************
-  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_conf.h"
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
 #define USBD_VID                      0x0483
-#define USBD_PID                      0x5740
+#define USBD_PID                      0x5710
 #define USBD_LANGID_STRING            0x409
-#define USBD_MANUFACTURER_STRING      "STMicroelectronics"
-#define USBD_PRODUCT_FS_STRING        "STM32 Virtual ComPort in FS Mode"
+#define USBD_MANUFACTURER_STRING      "MARM Project"
+#define USBD_PRODUCT_FS_STRING        "STM32 NFC Programmer"
 #define USBD_CONFIGURATION_FS_STRING  "VCP Config"
 #define USBD_INTERFACE_FS_STRING      "VCP Interface"
 
-/* Private macro -------------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
 uint8_t *USBD_VCP_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
 uint8_t *USBD_VCP_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
 uint8_t *USBD_VCP_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
@@ -53,7 +23,6 @@ uint8_t *USBD_VCP_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *leng
 uint8_t *USBD_VCP_USRStringDesc (USBD_SpeedTypeDef speed, uint8_t idx, uint16_t *length);  
 #endif /* USB_SUPPORT_USER_STRING_DESC */  
 
-/* Private variables ---------------------------------------------------------*/
 USBD_DescriptorsTypeDef VCP_Desc = {
   USBD_VCP_DeviceDescriptor,
   USBD_VCP_LangIDStrDescriptor, 
@@ -250,7 +219,3 @@ static void IntToUnicode (uint32_t value , uint8_t *pbuf , uint8_t len)
     pbuf[ 2* idx + 1] = 0;
   }
 }
-
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

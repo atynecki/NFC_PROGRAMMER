@@ -13,8 +13,8 @@ int main(void)
   system_clock_init();
 
 	BSP_EPD_Init();
-	BSP_EPD_DisplayStringAtLine(2, (uint8_t*)(TEXT));
-  BSP_EPD_RefreshDisplay();
+	BSP_EPD_DrawImage(0, 0, 72, 172, (uint8_t*) welcome_image);
+	BSP_EPD_RefreshDisplay();
 	
 	/* Init Device Library */
   USBD_Init(&USBD_Device, &VCP_Desc, 0);

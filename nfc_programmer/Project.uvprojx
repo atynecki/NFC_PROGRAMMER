@@ -571,6 +571,26 @@
               <FileType>5</FileType>
               <FilePath>.\inc\stm32l0xx_it.h</FilePath>
             </File>
+            <File>
+              <FileName>usbd_cdc_interface.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\usbd_cdc_interface.h</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_conf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\usbd_conf.h</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_desc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\usbd_desc.h</FilePath>
+            </File>
+            <File>
+              <FileName>picture.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\inc\picture.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
