@@ -1,16 +1,16 @@
 /**
   ******************************************************************************
-  * @file    EPAPER_Display/Src/stm32l0xx_it.c
+  * @file    Templates/Src/stm32l0xx_it.c 
   * @author  MCD Application Team
-  * @version V0.1.0
-  * @date    18-June-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   Main Interrupt Service Routines.
-  *          This file provides template for all exceptions handler and
+  *          This file provides template for all exceptions handler and 
   *          peripherals interrupt service routine.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -39,6 +39,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_it.h"
+#include "app_manager.h"
 
 /** @addtogroup STM32L0xx_HAL_Examples
   * @{
@@ -54,7 +55,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
-
 /* Private functions ---------------------------------------------------------*/
 
 /******************************************************************************/
@@ -67,7 +67,8 @@
   * @retval None
   */
 void NMI_Handler(void)
-{}
+{
+}
 
 /**
   * @brief  This function handles Hard Fault exception.
@@ -78,7 +79,8 @@ void HardFault_Handler(void)
 {
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
-  {}
+  {
+  }
 }
 
 /**
@@ -87,7 +89,8 @@ void HardFault_Handler(void)
   * @retval None
   */
 void SVC_Handler(void)
-{}
+{
+}
 
 /**
   * @brief  This function handles Debug Monitor exception.
@@ -95,7 +98,8 @@ void SVC_Handler(void)
   * @retval None
   */
 void DebugMon_Handler(void)
-{}
+{
+}
 
 /**
   * @brief  This function handles PendSVC exception.
@@ -103,7 +107,8 @@ void DebugMon_Handler(void)
   * @retval None
   */
 void PendSV_Handler(void)
-{}
+{
+}
 
 /**
   * @brief  This function handles SysTick Handler.
@@ -122,7 +127,6 @@ void SysTick_Handler(void)
 /*  file (startup_stm32l0xx.s).                                               */
 /******************************************************************************/
 
-
 /**
   * @brief  This function handles PPP interrupt request.
   * @param  None
@@ -135,7 +139,7 @@ void SysTick_Handler(void)
 
 /**
   * @}
-  */
+  */ 
 
 /**
   * @}

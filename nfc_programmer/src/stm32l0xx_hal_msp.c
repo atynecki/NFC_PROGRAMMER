@@ -1,24 +1,24 @@
 /**
   ******************************************************************************
-  * @file    EPAPER-Display/Src/stm32l0xx_hal_msp.c
+  * @file    Templates/Src/stm32l0xx_hal_msp.c
   * @author  MCD Application Team
-  * @version V0.1.0
-  * @date    18-June-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   HAL MSP module.
-  *
+  *         
   @verbatim
  ===============================================================================
                      ##### How to use this driver #####
  ===============================================================================
     [..]
-    This file is generated automatically by STM32CubeMX and eventually modified
+    This file is generated automatically by STM32CubeMX and eventually modified 
     by the user
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,10 +43,10 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */
+  */ 
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "stm32l0xx_hal.h"
 
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
@@ -75,19 +75,19 @@
   */
 void HAL_MspInit(void)
 {
-  /* NOTE : This function is generated automatically by STM32CubeMX and eventually
+  /* NOTE : This function is generated automatically by STM32CubeMX and eventually  
             modified by the user
-   */
+   */ 
 }
 
 /**
   * @brief  DeInitializes the Global MSP.
-  * @param  None
+  * @param  None  
   * @retval None
   */
 void HAL_MspDeInit(void)
 {
-  /* NOTE : This function is generated automatically by STM32CubeMX and eventually
+  /* NOTE : This function is generated automatically by STM32CubeMX and eventually  
             modified by the user
    */
 }

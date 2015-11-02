@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   Header file of I2C HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,33 +50,40 @@
   * @{
   */
 
-/** @addtogroup I2CEx
+/** @defgroup I2CEx I2CEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup I2CEx_Exported_Constants
+/** @defgroup I2CEx_Exported_Constants I2CEx Exported Constants
   * @{
   */
 
-/** @defgroup I2CEx_Analog_Filter
+/** @defgroup I2CEx_Analog_Filter I2C Analog Filter Enabling
   * @{
   */
-#define I2C_ANALOGFILTER_ENABLED        ((uint32_t)0x00000000)
-#define I2C_ANALOGFILTER_DISABLED       I2C_CR1_ANFOFF
-
-#define IS_I2C_ANALOG_FILTER(FILTER) (((FILTER) == I2C_ANALOGFILTER_ENABLED) || \
-                                      ((FILTER) == I2C_ANALOGFILTER_DISABLED))
+#define I2C_ANALOGFILTER_ENABLE        ((uint32_t)0x00000000)
+#define I2C_ANALOGFILTER_DISABLE       I2C_CR1_ANFOFF
 /**
   * @}
   */
 
-/** @defgroup I2CEx_Digital_Filter
+/** @defgroup I2CEx_FastModePlus I2C Fast Mode Plus
   * @{
   */
-#define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000F)
+#define I2C_FASTMODEPLUS_PB6            SYSCFG_CFGR2_I2C_PB6_FMP  /*!< Enable Fast Mode Plus on PB6       */
+#define I2C_FASTMODEPLUS_PB7            SYSCFG_CFGR2_I2C_PB7_FMP  /*!< Enable Fast Mode Plus on PB7       */
+#define I2C_FASTMODEPLUS_PB8            SYSCFG_CFGR2_I2C_PB8_FMP  /*!< Enable Fast Mode Plus on PB8       */
+#define I2C_FASTMODEPLUS_PB9            SYSCFG_CFGR2_I2C_PB9_FMP  /*!< Enable Fast Mode Plus on PB9       */
+#define I2C_FASTMODEPLUS_I2C1           SYSCFG_CFGR2_I2C1_FMP     /*!< Enable Fast Mode Plus on I2C1 pins */
+#if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined(STM32L031xx) && !defined(STM32L041xx)
+#define I2C_FASTMODEPLUS_I2C2           SYSCFG_CFGR2_I2C2_FMP     /*!< Enable Fast Mode Plus on I2C2 pins */
+#endif
+#if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx) 
+#define I2C_FASTMODEPLUS_I2C3           SYSCFG_CFGR2_I2C3_FMP     /*!< Enable Fast Mode Plus on I2C3 pins */
+#endif
 /**
   * @}
   */
@@ -87,21 +94,82 @@
   
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
+/** @defgroup I2CEx_Exported_Functions I2CEx Exported Functions
+  * @{
+  */
 
 /* Peripheral Control methods  ************************************************/
-HAL_StatusTypeDef HAL_I2CEx_AnalogFilter_Config(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter);
-HAL_StatusTypeDef HAL_I2CEx_DigitalFilter_Config(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter);
-HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp (I2C_HandleTypeDef *hi2c);
-HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c);
+
+/** @addtogroup I2CEx_Exported_Functions_Group1 Extended Features Functions
+  * @{
+  */
+HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter);
+HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter);
+HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp(I2C_HandleTypeDef *hi2c);
+HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp(I2C_HandleTypeDef *hi2c);
+void HAL_I2CEx_EnableFastModePlus(uint32_t ConfigFastModePlus);
+void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
+/**
+  * @}
+  */  
 
 /**
   * @}
   */ 
 
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup I2CEx_Private I2CEx Private
+  * @{
+  */
+#define IS_I2C_ANALOG_FILTER(FILTER)    (((FILTER) == I2C_ANALOGFILTER_ENABLE) || \
+                                          ((FILTER) == I2C_ANALOGFILTER_DISABLE))
+  
+#define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000F)
+
+#if defined(STM32L031xx) || defined(STM32L041xx) || defined(STM32L011xx) || defined(STM32L021xx)
+#define IS_I2C_FASTMODEPLUS(__CONFIG__) ((((__CONFIG__) & (I2C_FASTMODEPLUS_PB6)) == I2C_FASTMODEPLUS_PB6)    || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB7)) == I2C_FASTMODEPLUS_PB7)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB8)) == I2C_FASTMODEPLUS_PB8)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB9)) == I2C_FASTMODEPLUS_PB9)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_I2C1)) == I2C_FASTMODEPLUS_I2C1))
+#elif defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx) 
+#define IS_I2C_FASTMODEPLUS(__CONFIG__) ((((__CONFIG__) & (I2C_FASTMODEPLUS_PB6)) == I2C_FASTMODEPLUS_PB6)    || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB7)) == I2C_FASTMODEPLUS_PB7)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB8)) == I2C_FASTMODEPLUS_PB8)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB9)) == I2C_FASTMODEPLUS_PB9)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_I2C1)) == I2C_FASTMODEPLUS_I2C1) || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_I2C2)) == I2C_FASTMODEPLUS_I2C2) || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_I2C3)) == I2C_FASTMODEPLUS_I2C3))
+#else
+#define IS_I2C_FASTMODEPLUS(__CONFIG__) ((((__CONFIG__) & (I2C_FASTMODEPLUS_PB6)) == I2C_FASTMODEPLUS_PB6)    || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB7)) == I2C_FASTMODEPLUS_PB7)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB8)) == I2C_FASTMODEPLUS_PB8)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_PB9)) == I2C_FASTMODEPLUS_PB9)   || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_I2C1)) == I2C_FASTMODEPLUS_I2C1) || \
+                                          (((__CONFIG__) & (I2C_FASTMODEPLUS_I2C2)) == I2C_FASTMODEPLUS_I2C2))
+#endif
+/**
+  * @}
+  */ 
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup I2CEx_Private I2CEx Private
+  * @{
+  */
 /**
   * @}
   */
+/**************************************************************/
   
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+    
 #ifdef __cplusplus
 }
 #endif
@@ -110,3 +178,4 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c);
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

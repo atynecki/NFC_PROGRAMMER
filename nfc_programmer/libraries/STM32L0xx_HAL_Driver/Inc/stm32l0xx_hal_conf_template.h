@@ -1,14 +1,16 @@
 /**
   ******************************************************************************
-  * @file    stm32l0xx_hal_conf.h
+  * @file    stm32l0xx_hal_conf_template.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
-  * @brief   HAL configuration file.
+  * @version V1.3.0
+  * @date    09-September-2015
+  * @brief   HAL configuration template file. 
+  *          This file should be copied to the application folder and renamed
+  *          to stm32l0xx_hal_conf.h.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,7 +59,8 @@
 #define HAL_CRYP_MODULE_ENABLED  
 #define HAL_DAC_MODULE_ENABLED   
 #define HAL_DMA_MODULE_ENABLED
-#define HAL_FLASH_MODULE_ENABLED 
+#define HAL_FIREWALL_MODULE_ENABLED
+#define HAL_FLASH_MODULE_ENABLED
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
 #define HAL_I2S_MODULE_ENABLED   
@@ -80,7 +83,6 @@
 #define HAL_CORTEX_MODULE_ENABLED
 #define HAL_PCD_MODULE_ENABLED 
 
-
 /* ########################## Oscillator Values adaptation ####################*/
 /**
   * @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
@@ -102,7 +104,6 @@
 #if !defined  (MSI_VALUE)
   #define MSI_VALUE    ((uint32_t)2000000) /*!< Value of the Internal oscillator in Hz*/
 #endif /* MSI_VALUE */
-   
 /**
   * @brief Internal High Speed oscillator (HSI) value.
   *        This value is used by the RCC HAL module to compute the system frequency
@@ -111,7 +112,24 @@
 #if !defined  (HSI_VALUE)
   #define HSI_VALUE    ((uint32_t)16000000) /*!< Value of the Internal oscillator in Hz*/
 #endif /* HSI_VALUE */
-   
+
+/**
+  * @brief Internal High Speed oscillator for USB (HSI48) value.
+  */
+#if !defined  (HSI48_VALUE) 
+#define HSI48_VALUE ((uint32_t)48000000) /*!< Value of the Internal High Speed oscillator for USB in Hz.
+                                             The real value may vary depending on the variations
+                                             in voltage and temperature.  */
+#endif /* HSI48_VALUE */
+
+/**
+  * @brief Internal Low Speed oscillator (LSI) value.
+  */
+#if !defined  (LSI_VALUE) 
+ #define LSI_VALUE  ((uint32_t)37000)       /*!< LSI Typical Value in Hz*/
+#endif /* LSI_VALUE */                      /*!< Value of the Internal Low Speed oscillator in Hz
+                                             The real value may vary depending on the variations
+                                             in voltage and temperature.*/
 /**
   * @brief External Low Speed oscillator (LSE) value.
   *        This value is used by the UART, RTC HAL module to compute the system frequency
@@ -134,10 +152,10 @@
   * @brief This is the HAL system configuration section
   */     
 #define  VDD_VALUE                    ((uint32_t)3300) /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            ((uint32_t)3)    /*!< tick interrupt priority */            
+#define  TICK_INT_PRIORITY            (((uint32_t)1<<__NVIC_PRIO_BITS) - 1)    /*!< tick interrupt priority */            
 #define  USE_RTOS                     0     
 #define  PREFETCH_ENABLE              1              
-#define  PREREAD_ENABLE               1
+#define  PREREAD_ENABLE               0
 #define  BUFFER_CACHE_DISABLE         0
 
 /* ########################## Assert Selection ############################## */
@@ -155,7 +173,7 @@
 #ifdef HAL_RCC_MODULE_ENABLED
   #include "stm32l0xx_hal_rcc.h"
 #endif /* HAL_RCC_MODULE_ENABLED */
-
+  
 #ifdef HAL_GPIO_MODULE_ENABLED
   #include "stm32l0xx_hal_gpio.h"
 #endif /* HAL_GPIO_MODULE_ENABLED */
@@ -163,7 +181,7 @@
 #ifdef HAL_DMA_MODULE_ENABLED
   #include "stm32l0xx_hal_dma.h"
 #endif /* HAL_DMA_MODULE_ENABLED */
-   
+
 #ifdef HAL_CORTEX_MODULE_ENABLED
   #include "stm32l0xx_hal_cortex.h"
 #endif /* HAL_CORTEX_MODULE_ENABLED */
@@ -175,7 +193,7 @@
 #ifdef HAL_COMP_MODULE_ENABLED
   #include "stm32l0xx_hal_comp.h"
 #endif /* HAL_COMP_MODULE_ENABLED */
-   
+
 #ifdef HAL_CRC_MODULE_ENABLED
   #include "stm32l0xx_hal_crc.h"
 #endif /* HAL_CRC_MODULE_ENABLED */
@@ -188,6 +206,10 @@
   #include "stm32l0xx_hal_dac.h"
 #endif /* HAL_DAC_MODULE_ENABLED */
 
+#ifdef HAL_FIREWALL_MODULE_ENABLED
+  #include "stm32l0xx_hal_firewall.h"
+#endif /* HAL_FIREWALL_MODULE_ENABLED */
+ 
 #ifdef HAL_FLASH_MODULE_ENABLED
   #include "stm32l0xx_hal_flash.h"
 #endif /* HAL_FLASH_MODULE_ENABLED */
@@ -222,7 +244,6 @@
 
 #ifdef HAL_RTC_MODULE_ENABLED
  #include "stm32l0xx_hal_rtc.h"
-
 #endif /* HAL_RTC_MODULE_ENABLED */
 
 #ifdef HAL_SPI_MODULE_ENABLED
@@ -290,3 +311,4 @@
  
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

@@ -1,44 +1,71 @@
+/**
+  ******************************************************************************
+  * @file    USB_Device/CDC_Standalone/Src/usbd_desc.c
+  * @author  MCD Application Team
+  * @version V1.3.0
+  * @date    09-September-2015
+  * @brief   This file provides the USBD descriptors and string formating method.
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_conf.h"
 
+/* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define USBD_VID                      0x0483
-#define USBD_PID                      0x5710
+#define USBD_PID                      0x5740
 #define USBD_LANGID_STRING            0x409
 #define USBD_MANUFACTURER_STRING      "STMicroelectronics"
-#define USBD_PRODUCT_FS_STRING        "NFC Programmer"
-#define USBD_CONFIGURATION_FS_STRING  "CDC Config"
-#define USBD_INTERFACE_FS_STRING      "CDC Interface"
+#define USBD_PRODUCT_FS_STRING        "STM32 Virtual ComPort in FS Mode"
+#define USBD_CONFIGURATION_FS_STRING  "VCP Config"
+#define USBD_INTERFACE_FS_STRING      "VCP Interface"
 
+/* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-uint8_t *USBD_CDC_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t *USBD_CDC_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t *USBD_CDC_ManufacturerStrDescriptor (USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t *USBD_CDC_ProductStrDescriptor (USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t *USBD_CDC_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t *USBD_CDC_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t *USBD_CDC_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-
+uint8_t *USBD_VCP_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
+uint8_t *USBD_VCP_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
+uint8_t *USBD_VCP_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
+uint8_t *USBD_VCP_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
+uint8_t *USBD_VCP_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
+uint8_t *USBD_VCP_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
+uint8_t *USBD_VCP_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
 #ifdef USB_SUPPORT_USER_STRING_DESC
-uint8_t *USBD_CDC_USRStringDesc (USBD_SpeedTypeDef speed, uint8_t idx, uint16_t *length);  
+uint8_t *USBD_VCP_USRStringDesc (USBD_SpeedTypeDef speed, uint8_t idx, uint16_t *length);  
 #endif /* USB_SUPPORT_USER_STRING_DESC */  
 
 /* Private variables ---------------------------------------------------------*/
-USBD_DescriptorsTypeDef CDC_Desc = {
-  USBD_CDC_DeviceDescriptor,
-  USBD_CDC_LangIDStrDescriptor, 
-  USBD_CDC_ManufacturerStrDescriptor,
-  USBD_CDC_ProductStrDescriptor,
-  USBD_CDC_SerialStrDescriptor,
-  USBD_CDC_ConfigStrDescriptor,
-  USBD_CDC_InterfaceStrDescriptor,
+USBD_DescriptorsTypeDef VCP_Desc = {
+  USBD_VCP_DeviceDescriptor,
+  USBD_VCP_LangIDStrDescriptor, 
+  USBD_VCP_ManufacturerStrDescriptor,
+  USBD_VCP_ProductStrDescriptor,
+  USBD_VCP_SerialStrDescriptor,
+  USBD_VCP_ConfigStrDescriptor,
+  USBD_VCP_InterfaceStrDescriptor,  
 };
 
 /* USB Standard Device Descriptor */
-const uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC]= {
+const uint8_t hUSBDDeviceDesc[USB_LEN_DEV_DESC]= {
   0x12,                       /* bLength */
   USB_DESC_TYPE_DEVICE,       /* bDescriptorType */
   0x00,                       /* bcdUSB */
@@ -85,10 +112,10 @@ static void Get_SerialNum(void);
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t *USBD_CDC_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_VCP_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  *length = sizeof(USBD_DeviceDesc);
-  return (uint8_t*)USBD_DeviceDesc;
+  *length = sizeof(hUSBDDeviceDesc);
+  return (uint8_t*)hUSBDDeviceDesc;
 }
 
 /**
@@ -97,7 +124,7 @@ uint8_t *USBD_CDC_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t *USBD_CDC_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_VCP_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   *length = sizeof(USBD_LangIDDesc);  
   return (uint8_t*)USBD_LangIDDesc;
@@ -109,9 +136,9 @@ uint8_t *USBD_CDC_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t *USBD_CDC_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_VCP_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  USBD_GetString((uint8_t *)(uint8_t *)USBD_PRODUCT_FS_STRING, USBD_StrDesc, length);    
+  USBD_GetString((uint8_t *)USBD_PRODUCT_FS_STRING, USBD_StrDesc, length);    
   return USBD_StrDesc;
 }
 
@@ -121,9 +148,9 @@ uint8_t *USBD_CDC_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t *USBD_CDC_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_VCP_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  USBD_GetString((uint8_t *)(uint8_t *)USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
+  USBD_GetString((uint8_t *)USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
@@ -133,14 +160,14 @@ uint8_t *USBD_CDC_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t *USBD_CDC_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_VCP_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   *length = USB_SIZ_STRING_SERIAL;
   
   /* Update the serial number string descriptor with the data from the unique ID*/
   Get_SerialNum();
   
-  return (uint8_t*)USBD_StringSerial;
+  return USBD_StringSerial;
 }
 
 /**
@@ -149,9 +176,9 @@ uint8_t *USBD_CDC_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t *USBD_CDC_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_VCP_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  USBD_GetString((uint8_t *)(uint8_t *)USBD_CONFIGURATION_FS_STRING, USBD_StrDesc, length); 
+  USBD_GetString((uint8_t *)USBD_CONFIGURATION_FS_STRING, USBD_StrDesc, length); 
   return USBD_StrDesc;  
 }
 
@@ -161,9 +188,9 @@ uint8_t *USBD_CDC_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t *USBD_CDC_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_VCP_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  USBD_GetString((uint8_t *)(uint8_t *)USBD_INTERFACE_FS_STRING, USBD_StrDesc, length);
+  USBD_GetString((uint8_t *)USBD_INTERFACE_FS_STRING, USBD_StrDesc, length);
   return USBD_StrDesc;  
 }
 
@@ -184,8 +211,15 @@ static void Get_SerialNum(void)
   
   if (deviceserial0 != 0)
   {
-    IntToUnicode (deviceserial0, (uint8_t*)&USBD_StringSerial[2] ,8);
-    IntToUnicode (deviceserial1, (uint8_t*)&USBD_StringSerial[18] ,4);
+    IntToUnicode (deviceserial0, &USBD_StringSerial[2] ,8);
+    IntToUnicode (deviceserial1, &USBD_StringSerial[18] ,4);
+  }
+  else
+  {
+    deviceserial0 = 0xFFFFFFFF;
+    deviceserial1= 0xFFFFFFFF;
+    IntToUnicode (deviceserial0, &USBD_StringSerial[2] ,8);
+    IntToUnicode (deviceserial1, &USBD_StringSerial[18] ,4);
   }
 }
 
@@ -216,3 +250,7 @@ static void IntToUnicode (uint32_t value , uint8_t *pbuf , uint8_t len)
     pbuf[ 2* idx + 1] = 0;
   }
 }
+
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

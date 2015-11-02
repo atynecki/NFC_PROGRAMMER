@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   DMA HAL module driver.
   *    
   *         This file provides firmware functions to manage the following 
@@ -48,18 +48,18 @@
               add his own function by customization of function pointer XferCpltCallback and 
               XferErrorCallback (i.e a member of DMA handle structure). 
                 
-     (#) Use HAL_DMA_GetState() function to return the DMA state and HAL_DMA_GetError() in case of error 
-         detection.
+   (#) Use HAL_DMA_GetState() function to return the DMA state and HAL_DMA_GetError() in case of error 
+       detection.
          
-     (#) Use HAL_DMA_Abort() function to abort the current transfer              
+   (#) Use HAL_DMA_Abort() function to abort the current transfer              
                    
-     -@-   In Memory-to-Memory transfer mode, Circular mode is not allowed.          
+   -@-   In Memory-to-Memory transfer mode, Circular mode is not allowed.          
   
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -92,29 +92,31 @@
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
+#ifdef HAL_DMA_MODULE_ENABLED
 
-/** @defgroup DMA 
+/** @addtogroup DMA DMA
   * @brief DMA HAL module driver
   * @{
   */
 
-#ifdef HAL_DMA_MODULE_ENABLED
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
+/* Private typedef -----------------------------------------------------------*/  
+/** @addtogroup DMA_Private
+  *
+  * @{
+  */
 #define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s  */
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
+
+
 static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
+/**
+  * @}
+  */
 
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup DMA_Private_Functions
+/** @addtogroup DMA_Exported_Functions DMA Exported Functions
   * @{
   */
 
-/** @defgroup DMA_Group1 Initialization/de-initialization functions 
+/** @addtogroup DMA_Exported_Functions_Group1 
  *  @brief   Initialization/de-initialization functions 
  *
 @verbatim   
@@ -147,7 +149,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   }
 
   /* Check the parameters */
-  assert_param(IS_DMA_ALL_PERIPH(hdma->Instance));
+  assert_param(IS_DMA_ALL_INSTANCE(hdma->Instance));
   assert_param(IS_DMA_ALL_REQUEST(hdma->Init.Request));
   assert_param(IS_DMA_DIRECTION(hdma->Init.Direction));
   assert_param(IS_DMA_PERIPHERAL_INC_STATE(hdma->Init.PeriphInc));
@@ -157,6 +159,12 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   assert_param(IS_DMA_MODE(hdma->Init.Mode));
   assert_param(IS_DMA_PRIORITY(hdma->Init.Priority));
   
+  if(hdma->State == HAL_DMA_STATE_RESET)
+  {
+    /* Allocate lock resource and initialize it */
+    hdma->Lock = HAL_UNLOCKED;
+  }
+
   /* Change DMA peripheral state */
   hdma->State = HAL_DMA_STATE_BUSY;
 
@@ -218,6 +226,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     /* Configure request selection for DMA1 Channel5 */
     DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 16);
   }
+#if !defined (STM32L011xx) && !defined (STM32L021xx)
   else if (hdma->Instance == DMA1_Channel6)
   {
     /*Reset request selection for DMA1 Channel6*/
@@ -234,7 +243,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     /* Configure request selection for DMA1 Channel7 */
     DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 24);
   }
-   
+#endif   
   /* Initialize the DMA state*/
   hdma->State  = HAL_DMA_STATE_READY;
   
@@ -250,9 +259,15 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
 HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
 {
   /* Check the DMA peripheral state */
+  if(hdma == NULL)
+  {
+    return HAL_ERROR;
+  }
+  
+  /* Check the DMA peripheral state */
   if(hdma->State == HAL_DMA_STATE_BUSY)
   {
-     return HAL_ERROR;
+    return HAL_ERROR;
   }
 
   /* Disable the selected DMA Channelx */
@@ -302,6 +317,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
     /*Reset DMA request*/
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C5S;
   }
+#if !defined (STM32L011xx) && !defined (STM32L021xx)
   else if (hdma->Instance == DMA1_Channel6)
   {
     /*Reset DMA request*/
@@ -312,7 +328,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
     /*Reset DMA request*/
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C7S;
   }
-  
+#endif  
   /* Initialise the error code */
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
@@ -329,7 +345,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup DMA_Group2 I/O operation functions 
+/** @addtogroup DMA_Exported_Functions_Group2  
  *  @brief   I/O operation functions  
  *
 @verbatim   
@@ -425,7 +441,6 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
   * @brief  Aborts the DMA Transfer.
   * @param  hdma  : pointer to a DMA_HandleTypeDef structure that contains
   *                 the configuration information for the specified DMA Channel.
-  * @param  Timeout: Timeout duration
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
@@ -442,7 +457,7 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
   while((hdma->Instance->CCR & DMA_CCR_EN) != 0) 
   {
     /* Check for the Timeout */
-    if((int32_t) (HAL_GetTick()  - tickstart ) > HAL_TIMEOUT_DMA_ABORT)
+    if( (HAL_GetTick()  - tickstart ) > HAL_TIMEOUT_DMA_ABORT)
     {
       /* Update error code */
       hdma->ErrorCode |= HAL_DMA_ERROR_TIMEOUT;
@@ -500,6 +515,9 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
       /* Clear the transfer error flags */
       __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma));
       
+      /* Update error code */
+      SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TE);
+      
       /* Change the DMA state */
       hdma->State= HAL_DMA_STATE_ERROR;       
       
@@ -511,26 +529,21 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((int32_t) (HAL_GetTick()  - tickstart ) > Timeout)
+      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Update error code */
-        hdma->ErrorCode |= HAL_DMA_ERROR_TIMEOUT;
-
+        SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TIMEOUT);
+        
+        /* Change the DMA state */
+        hdma->State= HAL_DMA_STATE_TIMEOUT;
+        
         /* Process Unlocked */
         __HAL_UNLOCK(hdma);
-
-        /* Change the DMA state */
-        hdma->State = HAL_DMA_STATE_TIMEOUT;
-
+      
         return HAL_TIMEOUT;
       }
     }
   }
-  /* Clear the half transfer complete flag */
-  __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));
-
-  /* Change DMA peripheral state */
-  hdma->State = HAL_DMA_STATE_READY_HALF;
 
   if(CompleteLevel == HAL_DMA_FULL_TRANSFER)
   {
@@ -552,6 +565,9 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
     /* The selected Channelx EN bit is cleared (DMA is disabled and 
     all transfers are complete) */
     hdma->State = HAL_DMA_STATE_READY_HALF;
+    
+    /* Process unlocked */
+    __HAL_UNLOCK(hdma); 
   }
   
   return HAL_OK;
@@ -652,7 +668,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup DMA_Group3 Peripheral State functions
+/** @addtogroup DMA_Exported_Functions_Group3 
  *  @brief    Peripheral State functions 
  *
 @verbatim   
@@ -694,21 +710,19 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup DMA_Group4 Extanded feature functions
- *  @brief    Extanded feature functions 
- *
-@verbatim
- ===============================================================================
-                       ##### Extanded feature functions #####
- ===============================================================================
-    [..]
-    This subsection provides functions allowing to
-      (+) Configure the source, destination address and data length
+/**
+  * @}
+  */
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
 
-@endverbatim
+
+/* Private function prototypes -----------------------------------------------*/  
+/** @addtogroup DMA_Private
   * @{
   */
-/**
+  
+  /*
   * @brief  Sets the DMA Transfer parameter.
   * @param  hdma:       pointer to a DMA_HandleTypeDef structure that contains
   *                     the configuration information for the specified DMA Channel.  
@@ -741,7 +755,6 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
     hdma->Instance->CMAR = DstAddress;
   }
 }
-
 /**
   * @}
   */
@@ -755,8 +768,5 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
   * @}
   */
 
-/**
-  * @}
-  */
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

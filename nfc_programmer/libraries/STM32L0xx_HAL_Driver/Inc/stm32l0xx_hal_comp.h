@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,12 +50,19 @@
   * @{
   */
 
-/** @addtogroup COMP
+/** @defgroup COMP COMP
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 
+/** @defgroup COMP_Exported_Types COMP Exported Types
+  * @{
+  */
+
+   /** @defgroup COMP_Init COMP init configuration structure
+  * @{
+  */
 /** 
   * @brief  COMP Init structure definition  
   */
@@ -69,6 +76,9 @@ typedef struct
   uint32_t NonInvertingInput;  /*!< Selects the non inverting input of the comparator.
                                     This parameter can be a value of @ref COMP_NonInvertingInput */
 
+  uint32_t LPTIMConnection;     /*!< Selects if the COMP connection to the LPTIM is established or not.
+                                    This parameter can be a value of @ref COMP_LPTIMConnection */
+
   uint32_t OutputPol;          /*!< Selects the output polarity of the comparator.
                                     This parameter can be a value of @ref COMP_OutputPolarity */
 
@@ -76,7 +86,7 @@ typedef struct
                                     to adjust the speed/consumption.
                                     This parameter can be a value of @ref COMP_Mode */
 
-  uint32_t WindowMode;         /*!< Selects the window mode of the comparator 2.
+  uint32_t WindowMode;         /*!< Selects the window mode of the comparator.
                                     This parameter can be a value of @ref COMP_WindowMode */
 
   uint32_t TriggerMode;        /*!< Selects the trigger mode of the comparator (interrupt mode).
@@ -84,6 +94,13 @@ typedef struct
   
 }COMP_InitTypeDef;
 
+/**
+  * @}
+  */
+
+/** @defgroup COMP_state COMP state definition
+  * @{
+  */
 /** 
   * @brief  HAL State structures definition  
   */ 
@@ -95,9 +112,15 @@ typedef enum
   HAL_COMP_STATE_BUSY              = 0x02,    /*!< COMP is running                                  */
   HAL_COMP_STATE_BUSY_LOCKED       = 0x12     /*!< COMP is running and the configuration is locked  */
 }HAL_COMP_StateTypeDef;
+/**
+  * @}
+  */
 
+/** @defgroup COMP_handle COMP handler
+  * @{
+  */
 /** 
-  * @brief  PPP Handle Structure definition  
+  * @brief  COMP Handle Structure definition  
   */ 
 typedef struct
 {
@@ -107,12 +130,19 @@ typedef struct
   __IO HAL_COMP_StateTypeDef  State;  /*!< COMP communication state */
 } COMP_HandleTypeDef;
 
+/**
+  * @}
+  */
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup COMP_Exported_Constants
+/** @defgroup COMP_Exported_Constants COMP Exported Constants
   * @{
   */
 
-/** @defgroup COMP_OutputPolarity
+/** @defgroup COMP_OutputPolarity COMP output polarity definitions
   * @{
   */
 #define COMP_OUTPUTPOL_NONINVERTED             ((uint32_t)0x00000000)  /*!< COMP output on GPIO isn't inverted */
@@ -124,7 +154,7 @@ typedef struct
   */ 
 
 
-/** @defgroup COMP_InvertingInput
+/** @defgroup COMP_InvertingInput COMP inverting input definitions
   * @{
   */
 
@@ -155,7 +185,7 @@ typedef struct
   */ 
 
 
-/** @defgroup COMP_NonInvertingInput
+/** @defgroup COMP_NonInvertingInput COMP non inverting input definitions
   * @{
   */
 
@@ -181,7 +211,7 @@ typedef struct
   */ 
 
 
-/** @defgroup COMP_Mode
+/** @defgroup COMP_Mode COMP mode definition
   * @{
   */
 /* Please refer to the electrical characteristics in the device datasheet for
@@ -195,21 +225,42 @@ typedef struct
   * @}
   */
 
-/** @defgroup COMP_WindowMode
+/** @defgroup COMP_WindowMode COMP window mode definition
   * @{
   */
-#define COMP_WINDOWMODE_DISABLED               ((uint32_t)0x00000000)  /*!< Window mode disabled (Plus input of comparator 1 connected to PA1)*/
-#define COMP_WINDOWMODE_ENABLED                COMP_CSR_COMP1WM    /*!< Window mode enabled: Plus input of comparator 1 shorted with Plus input of comparator 2 */
-#define IS_COMP_WINDOWMODE(WINDOWMODE) (((WINDOWMODE) == COMP_WINDOWMODE_DISABLED) || \
-                                        ((WINDOWMODE) == COMP_WINDOWMODE_ENABLED))
+#define COMP_WINDOWMODE_DISABLE               ((uint32_t)0x00000000)  /*!< Window mode disabled (Plus input of comparator 1 connected to PA1)*/
+#define COMP_WINDOWMODE_ENABLE                COMP_CSR_COMP1WM    /*!< Window mode enabled: Plus input of comparator 1 shorted with Plus input of comparator 2 */
+#define IS_COMP_WINDOWMODE(WINDOWMODE) (((WINDOWMODE) == COMP_WINDOWMODE_DISABLE) || \
+                                        ((WINDOWMODE) == COMP_WINDOWMODE_ENABLE))
 
 #define IS_COMP_WINDOWMODE_INSTANCE(INSTANCE) ((INSTANCE) == COMP1)
+
 /**
   * @}
   */
 
+/** @defgroup COMP_LPTIMConnection COMP Low power timer connection definition
+  * @{
+  */
 
-/** @defgroup COMP_OutputLevel
+#define COMP_LPTIMCONNECTION_DISABLED               ((uint32_t)0x00000000)    /*!< COMPx signal is gated */
+#define COMP_LPTIMCONNECTION_IN1_ENABLED            ((uint32_t)0x00000001)    /*!< COMPx signal is connected to LPTIM input 1 */
+#define COMP_LPTIMCONNECTION_IN2_ENABLED            ((uint32_t)0x00000002)    /*!< COMPx signal is connected to LPTIM input 2 */
+
+#define IS_COMP1_LPTIMCONNECTION(LPTIMCONNECTION)   (((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_DISABLED) || \
+                                                     ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN1_ENABLED))
+
+#define IS_COMP2_LPTIMCONNECTION(LPTIMCONNECTION)   (((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_DISABLED) || \
+                                                     ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN1_ENABLED) || \
+                                                     ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN2_ENABLED))
+
+#define IS_COMP2_LPTIMCONNECTION_RESTRICTED(LPTIMCONNECTION)   (((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_DISABLED) || \
+                                                                ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN2_ENABLED))
+/**
+  * @}
+  */
+
+/** @defgroup COMP_OutputLevel COMP output level definition
   * @{
   */ 
 /* When output polarity is not inverted, comparator output is low when
@@ -230,39 +281,52 @@ typedef struct
 
 #define COMP_STATE_BIT_LOCK                    ((uint32_t)0x10)
 
-/** @defgroup COMP_TriggerMode 
+/** @defgroup COMP_TriggerMode COMP trigger mode definition
   * @{
   */
+#define COMP_TRIGGERMODE_NONE                  ((uint32_t)0x00000000)   /*!< No External Interrupt trigger detection */
 #define COMP_TRIGGERMODE_IT_RISING             ((uint32_t)0x00000001)   /*!< External Interrupt Mode with Rising edge trigger detection */
 #define COMP_TRIGGERMODE_IT_FALLING            ((uint32_t)0x00000002)   /*!< External Interrupt Mode with Falling edge trigger detection */
 #define COMP_TRIGGERMODE_IT_RISING_FALLING     ((uint32_t)0x00000003)   /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
-#define IS_COMP_TRIGGERMODE(MODE)  (((MODE) == COMP_TRIGGERMODE_IT_RISING)  || \
-                                    ((MODE) == COMP_TRIGGERMODE_IT_FALLING) || \
-                                    ((MODE) == COMP_TRIGGERMODE_IT_RISING_FALLING))
+
+#define COMP_TRIGGERMODE_EVENT_RISING          ((uint32_t)0x00000010)   /*!< Event Mode with Rising edge trigger detection */
+#define COMP_TRIGGERMODE_EVENT_FALLING         ((uint32_t)0x00000020)   /*!< Event Mode with Falling edge trigger detection */
+#define COMP_TRIGGERMODE_EVENT_RISING_FALLING  ((uint32_t)0x00000030)   /*!< Event Mode with Rising/Falling edge trigger detection */
+
 /**
   * @}
   */ 
 
-/** @defgroup COMP_ExtiLineEvent
+/** @defgroup COMP_ExtiLineEvent COMP EXTI line definition
   * @{
   */
 
-#define COMP_EXTI_LINE_COMP2_EVENT             ((uint32_t)0x00400000)  /*!< External interrupt line 22 Connected to COMP2 */
-#define COMP_EXTI_LINE_COMP1_EVENT             ((uint32_t)0x00200000)  /*!< External interrupt line 21 Connected to COMP1 */
+#define COMP_EXTI_LINE_COMP2             (EXTI_IMR_IM22)  /*!< External interrupt line 22 Connected to COMP2 */
+#define COMP_EXTI_LINE_COMP1             (EXTI_IMR_IM21)  /*!< External interrupt line 21 Connected to COMP1 */
 
-/**
-  * @}
-  */
 
 /**
   * @}
   */ 
+/**
+  * @}
+  */
   
 /* Exported macro ------------------------------------------------------------*/
 /** @brief Reset COMP handle state
   * @param  __HANDLE__: COMP handle.
   * @retval None
   */
+
+/** @defgroup COMP_Exported_Macro COMP Exported Macros
+  * @{
+  */
+/**
+  * @brief Reset the state machine associated to the handler
+  * @param  __HANDLE__: COMP handle.
+  * @retval None.
+  */
+
 #define __HAL_COMP_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_COMP_STATE_RESET)
 
 /**
@@ -287,7 +351,7 @@ typedef struct
 #define __HAL_COMP_LOCK(__HANDLE__)            ((__HANDLE__)->Instance->CSR |= COMP_CSR_COMPxLOCK)
 
 /** @brief  Checks whether the specified COMP flag is set or not.
-  * @param  __HANDLE__: specifies the COMP Handle.
+ *  @param  __HANDLE__: COMP handle.
   * @param  __FLAG__: specifies the flag to check.
   *        This parameter can be one of the following values:
   *            @arg COMP_FLAG_LOCK:  lock flag
@@ -295,108 +359,207 @@ typedef struct
   */
 #define __HAL_COMP_GET_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->CSR & (__FLAG__)) == (__FLAG__))   
 
-
 /**
-  * @brief Enable the Exti Line rising edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
-  */                                         
-#define __HAL_COMP_EXTI_RISING_IT_ENABLE(__EXTILINE__) (EXTI->RTSR |= (__EXTILINE__))
+  * @brief  Enable the Exti Line rising edge trigger.
+  */                          
+#define __HAL_COMP_COMP1_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Disable the Exti Line rising edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
   */                                         
-#define __HAL_COMP_EXTI_RISING_IT_DISABLE(__EXTILINE__) (EXTI->RTSR &= ~(__EXTILINE__))
+#define __HAL_COMP_COMP1_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief Enable the Exti Line falling edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
   * @retval None.
   */                                         
-#define __HAL_COMP_EXTI_FALLING_IT_ENABLE(__EXTILINE__) (EXTI->FTSR |= (__EXTILINE__))
+#define __HAL_COMP_COMP1_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief  Disable the Exti Line falling edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMP_ExtiLineEvent 
+  */                                         
+#define __HAL_COMP_COMP1_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief Enable the COMP1 EXTI line rising & falling edge trigger.
   * @retval None.
   */                                         
-#define __HAL_COMP_EXTI_FALLING_IT_DISABLE(__EXTILINE__) (EXTI->FTSR &= ~(__EXTILINE__))
+#define __HAL_COMP_COMP1_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
+                                                               __HAL_COMP_COMP1_EXTI_ENABLE_RISING_EDGE(); \
+                                                               __HAL_COMP_COMP1_EXTI_ENABLE_FALLING_EDGE(); \
+                                                             } while(0)
 
+/**
+  * @brief  Disable the COMP1 EXTI line rising & falling edge trigger.
+  * @retval None.
+  */                                         
+#define __HAL_COMP_COMP1_EXTI_DISABLE_RISING_FALLING_EDGE()  do { \
+                                                               __HAL_COMP_COMP1_EXTI_DISABLE_RISING_EDGE(); \
+                                                               __HAL_COMP_COMP1_EXTI_DISABLE_FALLING_EDGE(); \
+                                                             } while(0)
+
+/**
+  * @brief Enable the COMP2 EXTI line rising & falling edge trigger.
+  * @retval None.
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
+                                                               __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE(); \
+                                                               __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE(); \
+                                                             } while(0)
+
+/**
+  * @brief  Disable the COMP2 EXTI line rising & falling edge trigger.
+  * @retval None.
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
+                                                               __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE(); \
+                                                               __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE(); \
+                                                             } while(0)
+                                                                                                                       
 /**
   * @brief  Get the specified EXTI line for a comparator instance
   * @param  __INSTANCE__: specifies the COMP instance.
   * @retval value of @ref COMP_ExtiLineEvent
   */
-#define __HAL_COMP_GET_EXTI_LINE(__INSTANCE__) (((__INSTANCE__) == COMP1) ? COMP_EXTI_LINE_COMP1_EVENT : \
-                                                COMP_EXTI_LINE_COMP2_EVENT)
+#define COMP_GET_EXTI_LINE(__INSTANCE__) (((__INSTANCE__) == COMP1) ? COMP_EXTI_LINE_COMP1 : \
+                                                COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief Enable the COMP Exti Line.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
   * @retval None.
   */                                         
-#define __HAL_COMP_EXTI_ENABLE_IT(__EXTILINE__)   (EXTI->IMR |= (__EXTILINE__))
+
+#define __HAL_COMP_COMP1_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP2)
 
 /**
   * @brief Disable the COMP Exti Line.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
   * @retval None.
   */
-#define __HAL_COMP_EXTI_DISABLE_IT(__EXTILINE__)  (EXTI->IMR &= ~(__EXTILINE__))
+
+#define __HAL_COMP_COMP1_EXTI_DISABLE_IT()            CLEAR_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_DISABLE_IT()            CLEAR_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP2)
 
 /**
+  * @brief  Generate a software interrupt on the COMP EXTI line.
+  * @retval None
+  */
+#define __HAL_COMP_COMP1_EXTI_GENERATE_SWIT()         SET_BIT(EXTI->SWIER, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_GENERATE_SWIT()         SET_BIT(EXTI->SWIER, COMP_EXTI_LINE_COMP2)
+
+
+/**
+  * @brief  Enable the COMP EXTI Line in event mode
+  * @retval None
+  */
+#define __HAL_COMP_COMP1_EXTI_ENABLE_EVENT()           SET_BIT(EXTI->EMR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_ENABLE_EVENT()           SET_BIT(EXTI->EMR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Disable the COMP EXTI Line in event mode.
+  * @retval None
+  */
+#define __HAL_COMP_COMP1_EXTI_DISABLE_EVENT()          CLEAR_BIT(EXTI->EMR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_DISABLE_EVENT()          CLEAR_BIT(EXTI->EMR, COMP_EXTI_LINE_COMP2)
+/**
   * @brief  Checks whether the specified EXTI line flag is set or not.
-  * @param  __FLAG__: specifies the COMP Exti sources to be checked.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
   * @retval The state of __FLAG__ (SET or RESET).
   */
-#define __HAL_COMP_EXTI_GET_FLAG(__FLAG__)  (EXTI->PR & (__FLAG__))
+
+#define __HAL_COMP_COMP1_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP2)
      
 /**
   * @brief Clear the COMP Exti flags.
-  * @param  __FLAG__: specifies the COMP Exti sources to be cleared.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
   * @retval None.
   */
-#define __HAL_COMP_EXTI_CLEAR_FLAG(__FLAG__)   (EXTI->PR |= (__FLAG__))
+#define __HAL_COMP_COMP1_EXTI_CLEAR_FLAG()            WRITE_REG(EXTI->PR, COMP_EXTI_LINE_COMP1)
+#define __HAL_COMP_COMP2_EXTI_CLEAR_FLAG()            WRITE_REG(EXTI->PR, COMP_EXTI_LINE_COMP2)
 
+
+/**
+  * @}
+  */
+
+/* Include COMP HAL Extended module */
+#include "stm32l0xx_hal_comp_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
+/** @defgroup COMP_Exported_Functions COMP Exported Functions
+  * @{
+  */
+
+/** @defgroup COMP_Exported_Functions_Group1 Initialization/de-initialization functions
+  * @{
+  */
 
 /* Initialization/de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp);
 HAL_StatusTypeDef HAL_COMP_DeInit (COMP_HandleTypeDef *hcomp);
 void HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp);
 void HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp);
+/**
+  * @}
+  */
 
+/** @defgroup COMP_Exported_Functions_Group2 I/O operation functions
+  * @{
+  */
 /* I/O operation functions  *****************************************************/
 HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp);
 HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp);
 HAL_StatusTypeDef HAL_COMP_Start_IT(COMP_HandleTypeDef *hcomp);
 HAL_StatusTypeDef HAL_COMP_Stop_IT(COMP_HandleTypeDef *hcomp);
 void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp);
+/**
+  * @}
+  */
 
+/** @defgroup COMP_Exported_Functions_Group3 Peripheral Control functions
+  * @{
+  */
 /* Peripheral Control functions  ************************************************/
 HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp);
 uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp);
 
 /* Callback in Interrupt mode */
 void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp);
+/**
+  * @}
+  */
 
+/** @defgroup COMP_Exported_Functions_Group4 Peripheral State functions
+  * @{
+  */
 /* Peripheral State functions  **************************************************/
 HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
 
 /**
   * @}
-  */ 
+  */
+
+
+/**
+  * @}
+  */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup COMP_Private COMP Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
+
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -409,3 +572,4 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
 #endif /* __STM32L0xx_HAL_COMP_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32l0xx.c
   * @author  MCD Application Team
-  * @version V0.1.0
-  * @date    18-June-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
@@ -24,7 +24,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -63,7 +63,19 @@
   * @{
   */
 
-#include "stm32l0xx_hal.h"
+#include "stm32l0xx.h"
+
+#if !defined  (HSE_VALUE) 
+  #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz */
+#endif /* HSE_VALUE */
+
+#if !defined  (MSI_VALUE)
+  #define MSI_VALUE    ((uint32_t)2000000) /*!< Value of the Internal oscillator in Hz*/
+#endif /* MSI_VALUE */
+   
+#if !defined  (HSI_VALUE)
+  #define HSI_VALUE    ((uint32_t)16000000) /*!< Value of the Internal oscillator in Hz*/
+#endif /* HSI_VALUE */
 
 /**
   * @}
@@ -112,8 +124,8 @@
                variable is updated automatically.
   */
   uint32_t SystemCoreClock = 2000000;
-__I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-__I uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
+  const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+  const uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
 
 /**
   * @}
@@ -122,7 +134,7 @@ __I uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
 /** @addtogroup STM32L0xx_System_Private_FunctionPrototypes
   * @{
   */
-//static void SetSysClock(void);
+
 /**
   * @}
   */

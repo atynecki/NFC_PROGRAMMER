@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smartcard_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   SMARTCARD HAL module driver.
   *
   *          This file provides extended firmware functions to manage the following 
@@ -25,7 +25,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -59,12 +59,14 @@
   * @{
   */
 
-/** @defgroup SMARTCARDEx
+#ifdef HAL_SMARTCARD_MODULE_ENABLED
+
+
+/** @addtogroup SMARTCARDEx
   * @brief SMARTCARD Extended HAL module driver
   * @{
   */
-#ifdef HAL_SMARTCARD_MODULE_ENABLED
-    
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -72,11 +74,11 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup SMARTCARDEx_Private_Functions
+/** @addtogroup SMARTCARDEx_Exported_Functions
   * @{
   */
 
-/** @defgroup SMARTCARDEx_Group1 Extended Peripheral Control functions
+/** @addtogroup SMARTCARDEx_Exported_Functions_Group1
   * @brief    Extended control functions
   *
 @verbatim   
@@ -172,13 +174,13 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
   * @}
   */
 
+/**
+  * @}
+  */
 #endif /* HAL_SMARTCARD_MODULE_ENABLED */
 /**
   * @}
   */
 
-/**
-  * @}
-  */
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

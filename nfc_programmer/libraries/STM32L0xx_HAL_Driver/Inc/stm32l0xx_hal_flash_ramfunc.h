@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash_ramfunc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   Header file of FLASH RAMFUNC driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,23 +50,57 @@
   * @{
   */
 
-/** @addtogroup FLASH_RAMFUNC
+/** @defgroup FLASH_RAMFUNC FLASH Ram Function
   * @{
   */ 
 
-/* Exported types ------------------------------------------------------------*/ 
-
-
 /* Exported functions --------------------------------------------------------*/
 
-/* I/O operation functions  *****************************************************/
-/* Peripheral Control functions  ************************************************/
+/** @defgroup FLASH_RAMFUNC_Exported_Functions FLASH Ram Exported Functions
+  * @{
+  */
 
+/*
+  * @brief  FLASH memory functions that should be executed from internal SRAM.
+  *         These functions are defined inside the "stm32l0xx_hal_flash_ramfunc.c"
+  *         file.
+  */
+  
+/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group1 FLASH RAM peripheral features functions
+  * @{
+  */
+__RAM_FUNC  HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer);
+__RAM_FUNC  HAL_FLASHEx_EnableRunPowerDown(void);
+__RAM_FUNC  HAL_FLASHEx_DisableRunPowerDown(void);
+__RAM_FUNC  HAL_FLASHRAM_GetError(uint32_t * error);
+/**
+  * @}
+  */ 
 
-__RAM_FUNC  FLASH_HalfPageProgram(uint32_t Address, uint32_t *Data);
-__RAM_FUNC  FLASH_EnableRunPowerDown(void);
-__RAM_FUNC  FLASH_DisableRunPowerDown(void);
+#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group2 FLASH RAM programming and erasing operation functions
+  * @{
+  */
+__RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_Address2);
+__RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuffer1, uint32_t Address2, uint32_t* pBuffer2);
+/**
+  * @}
+  */ 
+#endif /* STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
 
+/**
+  * @}
+  */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup FLASH_RAMFUNC_Private FLASH Ram Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}
@@ -83,3 +117,4 @@ __RAM_FUNC  FLASH_DisableRunPowerDown(void);
 #endif /* __STM32L0xx_FLASH_RAMFUNC_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

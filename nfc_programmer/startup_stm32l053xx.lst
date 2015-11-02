@@ -4,12 +4,12 @@
 ARM Macro Assembler    Page 1 
 
 
-    1 00000000         ;******************** (C) COPYRIGHT 2014 STMicroelectron
+    1 00000000         ;******************** (C) COPYRIGHT 2015 STMicroelectron
                        ics ********************
     2 00000000         ;* File Name          : startup_stm32l053xx.s
     3 00000000         ;* Author             : MCD Application Team
-    4 00000000         ;* Version            : V1.0.1
-    5 00000000         ;* Date               : 24-April-2014
+    4 00000000         ;* Version            : V1.3.0
+    5 00000000         ;* Date               : 09-September-2015
     6 00000000         ;* Description        : STM32l053xx Devices vector table
                         for MDK-ARM toolchain.
     7 00000000         ;*                      This module performs:
@@ -87,7 +87,7 @@ ARM Macro Assembler    Page 2
    47 00000000         
    48 00000000 00000400 
                        Stack_Size
-                               EQU              0x00000400
+                               EQU              0x400       ;
    49 00000000         
    50 00000000                 AREA             STACK, NOINIT, READWRITE, ALIGN
 =3
@@ -102,7 +102,7 @@ ARM Macro Assembler    Page 2
    58 00000400         
    59 00000400 00000200 
                        Heap_Size
-                               EQU              0x00000200
+                               EQU              0x200       ;
    60 00000400         
    61 00000400                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
 3
@@ -399,13 +399,14 @@ ARM Macro Assembler    Page 7
               00000000 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0+ --apcs=inter
-work --depend=stm32l0xx_disco\startup_stm32l053xx.d -ostm32l0xx_disco\startup_s
-tm32l053xx.o -ID:\Project\STM32\nfc_programmer\Projects\STM32L053C8-Discovery\A
-pplications\EPAPER_Display\MDK-ARM\RTE -ID:\Programs\Keil_v5\ARM\PACK\Keil\STM3
-2L0xx_DFP\1.3.0\Device\Include -ID:\Programs\Keil_v5\ARM\CMSIS\Include --predef
-ine="__EVAL SETA 1" --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERS
-ION SETA 516" --predefine="STM32L053xx SETA 1" --list=startup_stm32l053xx.lst s
-tartup_stm32l053xx.s
+work --depend=stm32l053c8_discovery\startup_stm32l053xx.d -ostm32l053c8_discove
+ry\startup_stm32l053xx.o -ID:\Project\STM32\STM32_FW_LIB\STM32Cube_FW_L0_V1.3.0
+\Projects\STM32L053C8-Discovery\Templates\MDK-ARM\RTE -ID:\Programs\Keil_v5\ARM
+\PACK\ARM\CMSIS\4.3.0\CMSIS\Include -ID:\Programs\Keil_v5\ARM\PACK\Keil\STM32L0
+xx_DFP\1.3.0\Device\Include --predefine="__EVAL SETA 1" --predefine="__MICROLIB
+ SETA 1" --predefine="__UVISION_VERSION SETA 516" --predefine="_RTE_ SETA 1" --
+predefine="STM32L053xx SETA 1" --list=startup_stm32l053xx.lst startup_stm32l053
+xx.s
 
 
 
@@ -923,4 +924,4 @@ Symbol: __main
       At line 140 in file startup_stm32l053xx.s
 Comment: __main used once
 2 symbols
-387 symbols in table
+388 symbols in table

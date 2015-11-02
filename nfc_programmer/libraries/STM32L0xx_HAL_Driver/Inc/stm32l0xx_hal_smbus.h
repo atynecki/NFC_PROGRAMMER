@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smbus.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   Header file of SMBUS HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,11 +50,14 @@
   * @{
   */
 
-/** @addtogroup SMBUS
+/** @defgroup SMBUS SMBUS
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/
+/** @defgroup SMBUS_Exported_Types SMBUS Exported Types
+  * @{
+  */
 
 /** 
   * @brief  SMBUS Configuration Structure definition  
@@ -81,10 +84,10 @@ typedef struct
                                      This parameter can be a 7-bit address. */
 
   uint32_t OwnAddress2Masks;       /*!< Specifies the acknoledge mask address second device own address if dual addressing mode is selected
-                                     This parameter can be a value of @ref SMBUS_own_address2_masks. */
+                                     This parameter can be a value of @ref SMBUS_own_address2_masks */
 
   uint32_t GeneralCallMode;        /*!< Specifies if general call mode is selected.
-                                     This parameter can be a value of @ref SMBUS_general_call_addressing_mode. */
+                                     This parameter can be a value of @ref SMBUS_general_call_addressing_mode */
 
   uint32_t NoStretchMode;          /*!< Specifies if nostretch mode is selected.
                                      This parameter can be a value of @ref SMBUS_nostretch_mode */
@@ -101,86 +104,91 @@ typedef struct
                                          section in Reference manual */
 } SMBUS_InitTypeDef;
 
-/** 
-  * @brief  HAL State structures definition
-  */ 
-typedef enum
-{
-  HAL_SMBUS_STATE_RESET           = 0x00,  /*!< SMBUS not yet initialized or disabled         */
-  HAL_SMBUS_STATE_READY           = 0x01,  /*!< SMBUS initialized and ready for use           */
-  HAL_SMBUS_STATE_BUSY            = 0x02,  /*!< SMBUS internal process is ongoing             */
-  HAL_SMBUS_STATE_MASTER_BUSY_TX  = 0x12,  /*!< Master Data Transmission process is ongoing   */
-  HAL_SMBUS_STATE_MASTER_BUSY_RX  = 0x22,  /*!< Master Data Reception process is ongoing      */
-  HAL_SMBUS_STATE_SLAVE_BUSY_TX   = 0x32,  /*!< Slave Data Transmission process is ongoing    */
-  HAL_SMBUS_STATE_SLAVE_BUSY_RX   = 0x42,  /*!< Slave Data Reception process is ongoing       */
-  HAL_SMBUS_STATE_TIMEOUT         = 0x03,  /*!< Timeout state                                 */
-  HAL_SMBUS_STATE_ERROR           = 0x04,  /*!< Reception process is ongoing                  */
-  HAL_SMBUS_STATE_SLAVE_LISTEN    = 0x08   /*!< Slave Address Listen Mode is ongoing          */
-}HAL_SMBUS_StateTypeDef;
+/** @defgroup SMBUS_State SMBUS State
+  * @brief  HAL States definition
+   * @{
+   */ 
+#define  HAL_SMBUS_STATE_RESET           0x00  /*!< SMBUS not yet initialized or disabled         */
+#define  HAL_SMBUS_STATE_READY           0x01  /*!< SMBUS initialized and ready for use           */
+#define  HAL_SMBUS_STATE_BUSY            0x02  /*!< SMBUS internal process is ongoing             */
+#define  HAL_SMBUS_STATE_MASTER_BUSY_TX  0x12  /*!< Master Data Transmission process is ongoing   */
+#define  HAL_SMBUS_STATE_MASTER_BUSY_RX  0x22  /*!< Master Data Reception process is ongoing      */
+#define  HAL_SMBUS_STATE_SLAVE_BUSY_TX   0x32  /*!< Slave Data Transmission process is ongoing    */
+#define  HAL_SMBUS_STATE_SLAVE_BUSY_RX   0x42  /*!< Slave Data Reception process is ongoing       */
+#define  HAL_SMBUS_STATE_TIMEOUT         0x03  /*!< Timeout state                                 */
+#define  HAL_SMBUS_STATE_ERROR           0x04  /*!< Reception process is ongoing                  */
+#define  HAL_SMBUS_STATE_LISTEN          0x08   /*!< Address Listen Mode is ongoing                */   
+/**     
+  * @}  
+  */    
 
-/** 
-  * @brief  HAL SMBUS Error Code structure definition  
+/** @defgroup SMBUS_Error_Code SMBUS Error Code 
+  * @brief  SMBUS Error Code
+  * @{
   */ 
-typedef enum
-{
-  HAL_SMBUS_ERROR_NONE        = 0x00,    /*!< No error             */
-  HAL_SMBUS_ERROR_BERR        = 0x01,    /*!< BERR error           */
-  HAL_SMBUS_ERROR_ARLO        = 0x02,    /*!< ARLO error           */
-  HAL_SMBUS_ERROR_ACKF        = 0x04,    /*!< ACKF error           */
-  HAL_SMBUS_ERROR_OVR         = 0x08,    /*!< OVR error            */
-  HAL_SMBUS_ERROR_HALTIMEOUT  = 0x10,    /*!< Timeout error        */
-  HAL_SMBUS_ERROR_BUSTIMEOUT  = 0x20,    /*!< Bus Timeout error    */
-  HAL_SMBUS_ERROR_ALERT       = 0x40,    /*!< Alert error          */
-  HAL_SMBUS_ERROR_PECERR      = 0x80     /*!< PEC error            */
-
-}HAL_SMBUS_ErrorTypeDef;
+#define HAL_SMBUS_ERROR_NONE       0x00 /*!< No error             */
+#define HAL_SMBUS_ERROR_BERR       0x01 /*!< BERR error           */
+#define HAL_SMBUS_ERROR_ARLO       0x02 /*!< ARLO error           */
+#define HAL_SMBUS_ERROR_ACKF       0x04 /*!< ACKF error           */
+#define HAL_SMBUS_ERROR_OVR        0x08 /*!< OVR error            */
+#define HAL_SMBUS_ERROR_HALTIMEOUT 0x10 /*!< Timeout error        */
+#define HAL_SMBUS_ERROR_BUSTIMEOUT 0x20 /*!< Bus Timeout error    */
+#define HAL_SMBUS_ERROR_ALERT      0x40 /*!< Alert error          */
+#define HAL_SMBUS_ERROR_PECERR     0x80 /*!< PEC error            */
+/** 
+  * @}
+  */
 
 /** 
   * @brief  SMBUS handle Structure definition  
   */
 typedef struct
 {
-  I2C_TypeDef                  *Instance;       /*!< SMBUS registers base address       */
+  I2C_TypeDef                  *Instance;       /*!< SMBUS registers base address            */
+                                                                                            
+  SMBUS_InitTypeDef            Init;            /*!< SMBUS communication parameters          */
+                                                                                            
+  uint8_t                      *pBuffPtr;       /*!< Pointer to SMBUS transfer buffer        */
+                                                                                            
+  uint16_t                     XferSize;        /*!< SMBUS transfer size                     */
+                                                                                            
+  __IO uint16_t                XferCount;       /*!< SMBUS transfer counter                  */
+                                                                                            
+  __IO uint32_t                XferOptions;     /*!< SMBUS transfer options                  */
+                                                                                            
+  __IO uint32_t                PreviousState;   /*!< SMBUS communication Previous tate       */
+                                                                                            
+  HAL_LockTypeDef              Lock;            /*!< SMBUS locking object                    */
+                                                                                            
+  __IO uint32_t                State;           /*!< SMBUS communication state               */
 
-  SMBUS_InitTypeDef            Init;            /*!< SMBUS communication parameters     */
-
-  uint8_t                      *pBuffPtr;       /*!< Pointer to SMBUS transfer buffer   */
-
-  uint16_t                     XferSize;        /*!< SMBUS transfer size                */
-
-  __IO uint16_t                XferCount;       /*!< SMBUS transfer counter             */
-
-  __IO uint32_t                XferOptions;     /*!< SMBUS transfer options             */
-
-  __IO HAL_SMBUS_StateTypeDef  PreviousState;   /*!< SMBUS communication Previous tate  */
-
-  HAL_LockTypeDef              Lock;            /*!< SMBUS locking object               */
-
-  __IO HAL_SMBUS_StateTypeDef  State;           /*!< SMBUS communication state          */
-
-  __IO HAL_SMBUS_ErrorTypeDef  ErrorCode;       /*!< SMBUS Error code                   */
+  __IO uint32_t                ErrorCode;       /*!< SMBUS Error code , see SMBUS_Error_Code */
 
 }SMBUS_HandleTypeDef;
 
+/**     
+  * @}  
+  */    
+
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup SMBUS_Exported_Constants
+/** @defgroup SMBUS_Exported_Constants SMBUS Exported Constants
   * @{
   */
 
-/** @defgroup SMBUS_Analog_Filter
+/** @defgroup SMBUS_Analog_Filter SMBUS Analog Filter
   * @{
   */
-#define SMBUS_ANALOGFILTER_ENABLED              ((uint32_t)0x00000000)
-#define SMBUS_ANALOGFILTER_DISABLED             I2C_CR1_ANFOFF
+#define SMBUS_ANALOGFILTER_ENABLE              ((uint32_t)0x00000000)
+#define SMBUS_ANALOGFILTER_DISABLE             I2C_CR1_ANFOFF
 
-#define IS_SMBUS_ANALOG_FILTER(FILTER)          (((FILTER) == SMBUS_ANALOGFILTER_ENABLED) || \
-                                                 ((FILTER) == SMBUS_ANALOGFILTER_DISABLED))
+#define IS_SMBUS_ANALOG_FILTER(FILTER)          (((FILTER) == SMBUS_ANALOGFILTER_ENABLE) || \
+                                                 ((FILTER) == SMBUS_ANALOGFILTER_DISABLE))
 /**
   * @}
   */
 
-/** @defgroup SMBUS_addressing_mode
+/** @defgroup SMBUS_addressing_mode SMBUS Addressing Mode
   * @{
   */
 #define SMBUS_ADDRESSINGMODE_7BIT               ((uint32_t)0x00000001) 
@@ -192,20 +200,20 @@ typedef struct
   * @}
   */
 
-/** @defgroup SMBUS_dual_addressing_mode 
+/** @defgroup SMBUS_dual_addressing_mode SMBUS Dual Addressing Mode
   * @{
   */
 
-#define SMBUS_DUALADDRESS_DISABLED              ((uint32_t)0x00000000)
-#define SMBUS_DUALADDRESS_ENABLED               I2C_OAR2_OA2EN
+#define SMBUS_DUALADDRESS_DISABLE              ((uint32_t)0x00000000)
+#define SMBUS_DUALADDRESS_ENABLE               I2C_OAR2_OA2EN
 
-#define IS_SMBUS_DUAL_ADDRESS(ADDRESS)          (((ADDRESS) == SMBUS_DUALADDRESS_DISABLED) || \
-                                                 ((ADDRESS) == SMBUS_DUALADDRESS_ENABLED))
+#define IS_SMBUS_DUAL_ADDRESS(ADDRESS)          (((ADDRESS) == SMBUS_DUALADDRESS_DISABLE) || \
+                                                 ((ADDRESS) == SMBUS_DUALADDRESS_ENABLE))
 /**
   * @}
   */
 
-/** @defgroup SMBUS_own_address2_masks
+/** @defgroup SMBUS_own_address2_masks SMBUS Own Address2 Masks
   * @{
   */
 
@@ -231,43 +239,43 @@ typedef struct
   */
 
 
-/** @defgroup SMBUS_general_call_addressing_mode 
+/** @defgroup SMBUS_general_call_addressing_mode SMBUS General Call Enabling
   * @{
   */
-#define SMBUS_GENERALCALL_DISABLED              ((uint32_t)0x00000000)
-#define SMBUS_GENERALCALL_ENABLED               I2C_CR1_GCEN
+#define SMBUS_GENERALCALL_DISABLE              ((uint32_t)0x00000000)
+#define SMBUS_GENERALCALL_ENABLE               I2C_CR1_GCEN
 
-#define IS_SMBUS_GENERAL_CALL(CALL)             (((CALL) == SMBUS_GENERALCALL_DISABLED) || \
-                                                 ((CALL) == SMBUS_GENERALCALL_ENABLED))
+#define IS_SMBUS_GENERAL_CALL(CALL)             (((CALL) == SMBUS_GENERALCALL_DISABLE) || \
+                                                 ((CALL) == SMBUS_GENERALCALL_ENABLE))
 /**
   * @}
   */
 
-/** @defgroup SMBUS_nostretch_mode 
+/** @defgroup SMBUS_nostretch_mode SMBUS Nostretch Enabling
   * @{
   */
-#define SMBUS_NOSTRETCH_DISABLED                ((uint32_t)0x00000000)
-#define SMBUS_NOSTRETCH_ENABLED                 I2C_CR1_NOSTRETCH
+#define SMBUS_NOSTRETCH_DISABLE                ((uint32_t)0x00000000)
+#define SMBUS_NOSTRETCH_ENABLE                 I2C_CR1_NOSTRETCH
 
-#define IS_SMBUS_NO_STRETCH(STRETCH)            (((STRETCH) == SMBUS_NOSTRETCH_DISABLED) || \
-                                                 ((STRETCH) == SMBUS_NOSTRETCH_ENABLED))
+#define IS_SMBUS_NO_STRETCH(STRETCH)            (((STRETCH) == SMBUS_NOSTRETCH_DISABLE) || \
+                                                 ((STRETCH) == SMBUS_NOSTRETCH_ENABLE))
 /**
   * @}
   */
 
-/** @defgroup SMBUS_packet_error_check_mode
+/** @defgroup SMBUS_packet_error_check_mode SMBUS Packet Error Check Enabling
   * @{
   */
-#define SMBUS_PEC_DISABLED                      ((uint32_t)0x00000000)
-#define SMBUS_PEC_ENABLED                       I2C_CR1_PECEN
+#define SMBUS_PEC_DISABLE                       ((uint32_t)0x00000000)
+#define SMBUS_PEC_ENABLE                        I2C_CR1_PECEN
 
-#define IS_SMBUS_PEC(PEC)                       (((PEC) == SMBUS_PEC_DISABLED) || \
-                                                 ((PEC) == SMBUS_PEC_ENABLED))
+#define IS_SMBUS_PEC(PEC)                       (((PEC) == SMBUS_PEC_DISABLE) || \
+                                                 ((PEC) == SMBUS_PEC_ENABLE))
 /**
   * @}
   */
 
-/** @defgroup SMBUS_peripheral_mode
+/** @defgroup SMBUS_peripheral_mode SMBUS Peripheral Mode
   * @{
   */
 #define SMBUS_PERIPHERAL_MODE_SMBUS_HOST        (uint32_t)(I2C_CR1_SMBHEN)
@@ -281,7 +289,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SMBUS_ReloadEndMode_definition 
+/** @defgroup SMBUS_ReloadEndMode_definition SMBUS Mode Definition
   * @{
   */
 
@@ -301,7 +309,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SMBUS_StartStopMode_definition 
+/** @defgroup SMBUS_StartStopMode_definition SMBUS StartStop Mode Definition
   * @{
   */
 
@@ -318,7 +326,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SMBUS_XferOptions_definition 
+/** @defgroup SMBUS_XferOptions_definition SMBUS Transfer Request Definition
   * @{
   */
 
@@ -340,7 +348,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SMBUS_Interrupt_configuration_definition
+/** @defgroup SMBUS_Interrupt_configuration_definition SMBUS Interrupt Configuration Definition
   * @brief SMBUS Interrupt definition
   *        Elements values convention: 0xXXXXXXXX
   *           - XXXXXXXX  : Interrupt control mask
@@ -361,7 +369,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SMBUS_Flag_definition 
+/** @defgroup SMBUS_Flag_definition SMBUS Flag Definition
   * @brief Flag definition
   *        Elements values convention: 0xXXXXYYYY
   *           - XXXXXXXX  : Flag mask
@@ -393,7 +401,7 @@ typedef struct
   */
 
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup SMBUS_Exported_Macros
+/** @defgroup SMBUS_Exported_Macros SMBUS Exported Macros
   * @{
   */
 
@@ -482,23 +490,23 @@ typedef struct
   *            @arg SMBUS_FLAG_ALERT:		SMBus alert
   * @retval None
   */
-#define __HAL_SMBUS_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR |= ((__FLAG__) & SMBUS_FLAG_MASK))
+#define __HAL_SMBUS_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = ((__FLAG__) & SMBUS_FLAG_MASK))
  
 
 #define __HAL_SMBUS_ENABLE(__HANDLE__)                          ((__HANDLE__)->Instance->CR1 |=  I2C_CR1_PE)
 #define __HAL_SMBUS_DISABLE(__HANDLE__)                         ((__HANDLE__)->Instance->CR1 &=  ~I2C_CR1_PE)
 
-#define __HAL_SMBUS_RESET_CR1(__HANDLE__)                       ((__HANDLE__)->Instance->CR1 &= (uint32_t)~((uint32_t)(I2C_CR1_SMBHEN | I2C_CR1_SMBDEN | I2C_CR1_PECEN)))
-#define __HAL_SMBUS_RESET_CR2(__HANDLE__)                       ((__HANDLE__)->Instance->CR2 &= (uint32_t)~((uint32_t)(I2C_CR2_SADD | I2C_CR2_HEAD10R | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_RD_WRN)))
+#define __SMBUS_RESET_CR1(__HANDLE__)                       ((__HANDLE__)->Instance->CR1 &= (uint32_t)~((uint32_t)(I2C_CR1_SMBHEN | I2C_CR1_SMBDEN | I2C_CR1_PECEN)))
+#define __SMBUS_RESET_CR2(__HANDLE__)                       ((__HANDLE__)->Instance->CR2 &= (uint32_t)~((uint32_t)(I2C_CR2_SADD | I2C_CR2_HEAD10R | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_RD_WRN)))
 
-#define __HAL_SMBUS_GENERATE_START(__ADDMODE__,__ADDRESS__)     (((__ADDMODE__) == SMBUS_ADDRESSINGMODE_7BIT) ? (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_START) | (I2C_CR2_AUTOEND)) & (~I2C_CR2_RD_WRN)) : \
+#define __SMBUS_GENERATE_START(__ADDMODE__,__ADDRESS__)     (((__ADDMODE__) == SMBUS_ADDRESSINGMODE_7BIT) ? (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_START) | (I2C_CR2_AUTOEND)) & (~I2C_CR2_RD_WRN)) : \
                                                                   (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_ADD10) | (I2C_CR2_START)) & (~I2C_CR2_RD_WRN)))
 
-#define __HAL_SMBUS_GET_ADDR_MATCH(__HANDLE__)                  (((__HANDLE__)->Instance->ISR & I2C_ISR_ADDCODE) >> 17)
-#define __HAL_SMBUS_GET_DIR(__HANDLE__)                         (((__HANDLE__)->Instance->ISR & I2C_ISR_DIR) >> 16)
-#define __HAL_SMBUS_GET_STOP_MODE(__HANDLE__)                   ((__HANDLE__)->Instance->CR2 & I2C_CR2_AUTOEND)
-#define __HAL_SMBUS_GET_PEC_MODE(__HANDLE__)                    ((__HANDLE__)->Instance->CR2 & I2C_CR2_PECBYTE)
-#define __HAL_SMBUS_GET_ALERT_ENABLED(__HANDLE__)                ((__HANDLE__)->Instance->CR1 & I2C_CR1_ALERTEN)
+#define __SMBUS_GET_ADDR_MATCH(__HANDLE__)                  (((__HANDLE__)->Instance->ISR & I2C_ISR_ADDCODE) >> 17)
+#define __SMBUS_GET_DIR(__HANDLE__)                         (((__HANDLE__)->Instance->ISR & I2C_ISR_DIR) >> 16)
+#define __SMBUS_GET_STOP_MODE(__HANDLE__)                   ((__HANDLE__)->Instance->CR2 & I2C_CR2_AUTOEND)
+#define __SMBUS_GET_PEC_MODE(__HANDLE__)                    ((__HANDLE__)->Instance->CR2 & I2C_CR2_PECBYTE)
+#define __SMBUS_GET_ALERT_ENABLE(__HANDLE__)                ((__HANDLE__)->Instance->CR1 & I2C_CR1_ALERTEN)
 #define __HAL_SMBUS_GENERATE_NACK(__HANDLE__)                   ((__HANDLE__)->Instance->CR2 |= I2C_CR2_NACK)
 
 #define IS_SMBUS_OWN_ADDRESS1(ADDRESS1)                         ((ADDRESS1) <= (uint32_t)0x000003FF)
@@ -507,42 +515,70 @@ typedef struct
   * @}
   */ 
 
+
 /* Exported functions --------------------------------------------------------*/
+/** @defgroup SMBUS_Exported_Functions SMBUS Exported Functions
+  * @{
+  */
+
 /* Initialization and de-initialization functions  ****************************/
+/* IO operation functions  ****************************************************/
+/** @defgroup SMBUS_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
 HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus);
 HAL_StatusTypeDef HAL_SMBUS_DeInit (SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_MspInit(SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_MspDeInit(SMBUS_HandleTypeDef *hsmbus);
-
+/**
+  * @}
+  */ 
+  
 /* IO operation functions  ****************************************************/
+/** @defgroup SMBUS_Exported_Functions_Group2  IO operation functions
+  * @{
+  */
 HAL_StatusTypeDef HAL_SMBUS_EnableAlert_IT(SMBUS_HandleTypeDef *hsmbus);
 HAL_StatusTypeDef HAL_SMBUS_DisableAlert_IT(SMBUS_HandleTypeDef *hsmbus);
+HAL_StatusTypeDef HAL_SMBUS_EnableListen_IT(SMBUS_HandleTypeDef *hsmbus);
+HAL_StatusTypeDef HAL_SMBUS_DisableListen_IT(SMBUS_HandleTypeDef *hsmbus);
+/* Aliases for inter STM32 series compatibility */
+#define HAL_SMBUS_EnableListen_IT   HAL_SMBUS_EnableListen_IT
 
 /******* Blocking mode: Polling */
 HAL_StatusTypeDef HAL_SMBUS_IsDeviceReady(SMBUS_HandleTypeDef *hsmbus, uint16_t DevAddress, uint32_t Trials, uint32_t Timeout);
 
- /******* Non-Blocking mode: Interrupt */
+/******* Non-Blocking mode: Interrupt */
 HAL_StatusTypeDef HAL_SMBUS_Master_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t XferOptions);
 HAL_StatusTypeDef HAL_SMBUS_Master_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t XferOptions);
 HAL_StatusTypeDef HAL_SMBUS_Master_Abort_IT(SMBUS_HandleTypeDef *hsmbus, uint16_t DevAddress);
 HAL_StatusTypeDef HAL_SMBUS_Slave_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint8_t *pData, uint16_t Size, uint32_t XferOptions);
 HAL_StatusTypeDef HAL_SMBUS_Slave_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint8_t *pData, uint16_t Size, uint32_t XferOptions);
-HAL_StatusTypeDef HAL_SMBUS_Slave_Listen_IT(SMBUS_HandleTypeDef *hsmbus);
 
- /******* SMBUS IRQHandler and Callbacks used in non blocking modes (Interrupt) */
+/******* SMBUS IRQHandler and Callbacks used in non blocking modes (Interrupt) */
 void HAL_SMBUS_EV_IRQHandler(SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_ER_IRQHandler(SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_MasterTxCpltCallback(SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_MasterRxCpltCallback(SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_SlaveTxCpltCallback(SMBUS_HandleTypeDef *hsmbus);
 void HAL_SMBUS_SlaveRxCpltCallback(SMBUS_HandleTypeDef *hsmbus);
-void HAL_SMBUS_SlaveAddrCallback(SMBUS_HandleTypeDef *hsmbus, uint8_t TransferDirection, uint16_t AddrMatchCode);
-void HAL_SMBUS_SlaveListenCpltCallback(SMBUS_HandleTypeDef *hsmbus);
+void HAL_SMBUS_AddrCallback(SMBUS_HandleTypeDef *hsmbus, uint8_t TransferDirection, uint16_t AddrMatchCode);
+void HAL_SMBUS_ListenCpltCallback(SMBUS_HandleTypeDef *hsmbus);
+/* Aliases for inter STM32 series compatibility */
+#define HAL_SMBUS_AddrCallback         HAL_SMBUS_AddrCallback
+#define HAL_SMBUS_ListenCpltCallback   HAL_SMBUS_ListenCpltCallback
+
 void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus);
+/**
+  * @}
+  */
 
 /* Peripheral State and Errors functions  *************************************/
-HAL_SMBUS_StateTypeDef HAL_SMBUS_GetState(SMBUS_HandleTypeDef *hsmbus);
-uint32_t               HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus);
+/** @defgroup SMBUS_Exported_Functions_Group3 Peripheral State and Errors functions
+  * @{
+  */
+uint32_t HAL_SMBUS_GetState(SMBUS_HandleTypeDef *hsmbus);
+uint32_t HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus);
 
 /**
   * @}
@@ -551,7 +587,24 @@ uint32_t               HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus);
 /**
   * @}
   */ 
-  
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup SMBUS_Private SMBUS_Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 #ifdef __cplusplus
 }
 #endif
@@ -560,3 +613,5 @@ uint32_t               HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus);
 #endif /* __STM32L0xx_HAL_SMBUS_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+

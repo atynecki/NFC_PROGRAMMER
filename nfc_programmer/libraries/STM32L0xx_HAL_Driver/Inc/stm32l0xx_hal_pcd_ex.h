@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,19 +50,26 @@
   * @{
   */
 
-/** @addtogroup PCDEx
+/** @defgroup PCDEx PCDEx
   * @{
   */ 
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported macros -----------------------------------------------------------*/
-/* Internal macros -----------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
+
+/** @defgroup PCDEx_Exported_Functions PCDEx Exported Functions
+  * @{
+  */
+
+/** @defgroup PCDEx__Exported_Functions_Group1 Initialization and de-initialization functions
+ *  @brief    Initialization and Configuration functions
+ */
 HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
                                      uint16_t ep_addr,
                                      uint16_t ep_kind,
                                      uint32_t pmaadress);
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -80,3 +87,4 @@ HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
 #endif /* __STM32L0xx_HAL_PCD_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

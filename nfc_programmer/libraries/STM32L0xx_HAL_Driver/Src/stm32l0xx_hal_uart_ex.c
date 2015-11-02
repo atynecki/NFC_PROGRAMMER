@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   Extended UART HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -30,7 +30,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,13 +64,16 @@
   * @{
   */
 
-/** @defgroup UARTEx
+#ifdef HAL_UART_MODULE_ENABLED
+
+/** @addtogroup UARTEx
   * @brief UARTEx module driver
   * @{
   */
 
-#ifdef HAL_UART_MODULE_ENABLED
-
+/** @addtogroup UARTEx_Private
+  * @{
+  */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define UART_REACK_TIMEOUT       ((uint32_t) 1000)
@@ -80,11 +83,15 @@
 static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection);
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup UARTEX_Private_Functions
+/**
+  * @}
+  */
+
+/** @addtogroup UARTEx_Exported_Functions
   * @{
   */
 
-/** @defgroup UARTEx_Group1 Extended Initialization/de-initialization functions
+/** @addtogroup UARTEx_Exported_Functions_Group1
   * @brief    Extended Initialization and Configuration Functions
 
   *
@@ -175,16 +182,17 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
   return (UART_CheckIdleState(huart));
 }
 
+
 /**
   * @}
   */
   
-/** @defgroup UARTEX_Group1 Peripheral Control methods 
+/** @addtogroup UARTEx_Exported_Functions_Group2
  *  @brief   management functions 
  *
 @verbatim   
  ===============================================================================
-                      ##### Peripheral Control methods #####
+                      ##### Peripheral Control funtions #####
  ===============================================================================  
     [..] This section provides functions allowing to:
      (+) UART_AdvFeatureConfig() API optionally configures the UART advanced features 
@@ -306,6 +314,9 @@ HAL_StatusTypeDef HAL_UARTEx_DisableClockStopMode(UART_HandleTypeDef *huart)
   */
 HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection)
 {
+
+  /* check the wake-up from stop mode UART instance */
+  assert_param(IS_UART_WAKEUP_FROMSTOP_INSTANCE(huart->Instance));
   /* Check the wake-up selection parameter */
   assert_param(IS_UART_WAKEUP_SELECTION(WakeUpSelection.WakeUpEvent));
 
@@ -384,6 +395,29 @@ HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *hua
 }
 
 /**
+  * @brief UART wakeup from Stop mode callback
+  * @param huart: uart handle
+  * @retval None
+  */
+ __weak void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_UART_WakeupCallback can be implemented in the user file
+   */
+}
+
+/**
+  * @}
+  */  
+
+ /**
+  * @}
+  */
+
+/** @addtogroup UARTEx_Private
+  * @{
+  */
+/**
   * @brief Initializes the UART wake-up from stop mode parameters when triggered by address detection.
   * @param huart: uart handle
   * @param WakeUpSelection: UART wake up from stop mode parameters
@@ -408,21 +442,20 @@ static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpType
   MODIFY_REG(huart->Instance->CR2, USART_CR2_ADD, ((uint32_t)WakeUpSelection.Address << UART_CR2_ADDRESS_LSB_POS));
 }
 
+
 /**
   * @}
-  */  
+  */
 
 /**
   * @}
   */
 
 #endif /* HAL_UART_MODULE_ENABLED */
-/**
-  * @}
-  */
 
 /**
   * @}
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

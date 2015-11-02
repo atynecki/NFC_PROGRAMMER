@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    cpu_utils.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0
+  * @date    20-November-2014
   * @brief   Header for cpu_utils module
   ******************************************************************************
   * @attention

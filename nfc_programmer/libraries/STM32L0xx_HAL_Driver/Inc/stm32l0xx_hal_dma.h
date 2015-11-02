@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2014
+  * @version V1.3.0
+  * @date    09-September-2015
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,10 +50,13 @@
   * @{
   */
 
-/** @addtogroup DMA
+/** @defgroup DMA DMA
   * @{
   */ 
 
+   /** @defgroup DMA_Exported_Types DMA Exported Types
+  * @{
+  */
 /* Exported types ------------------------------------------------------------*/ 
 
 /** 
@@ -66,27 +69,31 @@ typedef struct
     
   uint32_t Direction;                 /*!< Specifies if the data will be transferred from memory to peripheral, 
                                            from memory to memory or from peripheral to memory.
-                                           This parameter can be a value of @ref Data_transfer_direction */
+                                           This parameter can be a value of @ref DMA_Data_transfer_direction */
 
   uint32_t PeriphInc;                 /*!< Specifies whether the Peripheral address register should be incremented or not.
-                                           This parameter can be a value of @ref Peripheral_incremented_mode */  
+                                           When Memory to Memory transfer is used, this is the Source Increment mode
+                                           This parameter can be a value of @ref DMA_Peripheral_incremented_mode */  
 
   uint32_t MemInc;                    /*!< Specifies whether the memory address register should be incremented or not.
-                                           This parameter can be a value of @ref Memory_incremented_mode */
+                                           When Memory to Memory transfer is used, this is the Destination Increment mode
+                                           This parameter can be a value of @ref DMA_Memory_incremented_mode */
   
   uint32_t PeriphDataAlignment;       /*!< Specifies the Peripheral data width.
-                                           This parameter can be a value of @ref Peripheral_data_size */   
+                                           When Memory to Memory transfer is used, this is the Source Alignment format
+                                           This parameter can be a value of @ref DMA_Peripheral_data_size */   
 
   uint32_t MemDataAlignment;          /*!< Specifies the Memory data width.
-                                           This parameter can be a value of @ref Memory_data_size */
+                                           When Memory to Memory transfer is used, this is the Destination Alignment format
+                                           This parameter can be a value of @ref DMA_Memory_data_size */
 
-  uint32_t Mode;                      /*!< Specifies the operation mode of the DMAy Channelx.
+  uint32_t Mode;                      /*!< Specifies the operation mode of the DMAy Channelx (Normal or Circular).
                                            This parameter can be a value of @ref DMA_mode
                                            @note The circular buffer mode cannot be used if the memory-to-memory
                                                  data transfer is configured on the selected Channel */ 
 
   uint32_t Priority;                   /*!< Specifies the software priority for the DMAy Channelx.
-                                            This parameter can be a value of @ref Priority_level */
+                                            This parameter can be a value of @ref DMA_Priority_level */
 } DMA_InitTypeDef;
 
 /** 
@@ -126,7 +133,7 @@ typedef enum
 /** 
   * @brief  DMA handle Structure definition  
   */ 
-typedef struct __DMA_HandleTypeDef
+typedef struct DMA_HandleTypeDef
 {  
   DMA_Channel_TypeDef    *Instance;                                                   /*!< Register base address                  */
   
@@ -138,49 +145,97 @@ typedef struct __DMA_HandleTypeDef
   
   void                  *Parent;                                                      /*!< Parent object state                    */  
   
-  void                  (* XferCpltCallback)( struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback         */
+  void                  (* XferCpltCallback)( struct DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback         */
   
-  void                  (* XferHalfCpltCallback)( struct __DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback    */
+  void                  (* XferHalfCpltCallback)( struct DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback    */
 
-  void                  (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
+  void                  (* XferErrorCallback)( struct DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
   
   __IO uint32_t          ErrorCode;                                                    /*!< DMA Error code                         */
   
 } DMA_HandleTypeDef;    
 
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup DMA_Exported_Constants
+/** @defgroup DMA_Exported_Constants DMA Exported Constants
   * @{
   */
 
-/** @defgroup DMA_Error_Code 
+/** @defgroup DMA_Error_Code DMA Error Codes
   * @{
   */ 
 #define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error             */
 #define HAL_DMA_ERROR_TE        ((uint32_t)0x00000001)    /*!< Transfer error       */
 #define HAL_DMA_ERROR_TIMEOUT   ((uint32_t)0x00000020)    /*!< Timeout error        */
-/**
-  * @}
-  */
 
-#define IS_DMA_ALL_PERIPH(PERIPH) (((PERIPH) == DMA1_Channel1) || \
-                                   ((PERIPH) == DMA1_Channel2) || \
-                                   ((PERIPH) == DMA1_Channel3) || \
-                                   ((PERIPH) == DMA1_Channel4) || \
-                                   ((PERIPH) == DMA1_Channel5) || \
-                                   ((PERIPH) == DMA1_Channel6) || \
-                                   ((PERIPH) == DMA1_Channel7))
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define IS_DMA_ALL_INSTANCE(INSTANCE) (((INSTANCE) == DMA1_Channel1) || \
+                                       ((INSTANCE) == DMA1_Channel2) || \
+                                       ((INSTANCE) == DMA1_Channel3) || \
+                                       ((INSTANCE) == DMA1_Channel4) || \
+                                       ((INSTANCE) == DMA1_Channel5)
+#else
+#define IS_DMA_ALL_INSTANCE(INSTANCE) (((INSTANCE) == DMA1_Channel1) || \
+                                       ((INSTANCE) == DMA1_Channel2) || \
+                                       ((INSTANCE) == DMA1_Channel3) || \
+                                       ((INSTANCE) == DMA1_Channel4) || \
+                                       ((INSTANCE) == DMA1_Channel5) || \
+                                       ((INSTANCE) == DMA1_Channel6) || \
+                                       ((INSTANCE) == DMA1_Channel7))   
 
+#endif
 #define IS_DMA_ALL_CONTROLLER(CONTROLLER) (((CONTROLLER) == DMA1))
 
 /**
   * @}
   */
 
-/** @defgroup DMA_request 
+/** @defgroup DMA_request DMA request defintiions
   * @{
   */ 
+
+#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+
+#define DMA_REQUEST_0                     ((uint32_t)0x00000000)
+#define DMA_REQUEST_1                     ((uint32_t)0x00000001)
+#define DMA_REQUEST_2                     ((uint32_t)0x00000002)
+#define DMA_REQUEST_3                     ((uint32_t)0x00000003)
+#define DMA_REQUEST_4                     ((uint32_t)0x00000004)
+#define DMA_REQUEST_5                     ((uint32_t)0x00000005)
+#define DMA_REQUEST_6                     ((uint32_t)0x00000006)
+#define DMA_REQUEST_7                     ((uint32_t)0x00000007)
+#define DMA_REQUEST_8                     ((uint32_t)0x00000008)
+#define DMA_REQUEST_9                     ((uint32_t)0x00000009)
+#define DMA_REQUEST_10                    ((uint32_t)0x0000000A)
+#define DMA_REQUEST_11                    ((uint32_t)0x0000000B)
+#define DMA_REQUEST_12                    ((uint32_t)0x0000000C)
+#define DMA_REQUEST_13                    ((uint32_t)0x0000000D)
+#define DMA_REQUEST_14                    ((uint32_t)0x0000000E)
+#define DMA_REQUEST_15                    ((uint32_t)0x0000000F)
+
+#define IS_DMA_ALL_REQUEST(REQUEST) (((REQUEST) == DMA_REQUEST_0) || \
+                                     ((REQUEST) == DMA_REQUEST_1) || \
+                                     ((REQUEST) == DMA_REQUEST_2) || \
+                                     ((REQUEST) == DMA_REQUEST_3) || \
+                                     ((REQUEST) == DMA_REQUEST_4) || \
+                                     ((REQUEST) == DMA_REQUEST_5) || \
+                                     ((REQUEST) == DMA_REQUEST_6) || \
+                                     ((REQUEST) == DMA_REQUEST_7) || \
+                                     ((REQUEST) == DMA_REQUEST_8) || \
+                                     ((REQUEST) == DMA_REQUEST_9) || \
+                                     ((REQUEST) == DMA_REQUEST_10) || \
+                                     ((REQUEST) == DMA_REQUEST_11) || \
+                                     ((REQUEST) == DMA_REQUEST_12) || \
+                                     ((REQUEST) == DMA_REQUEST_13) || \
+                                     ((REQUEST) == DMA_REQUEST_14) || \
+                                     ((REQUEST) == DMA_REQUEST_15))
+
+#else /* #if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
+                                       
 #define DMA_REQUEST_0                     ((uint32_t)0x00000000)
 #define DMA_REQUEST_1                     ((uint32_t)0x00000001)
 #define DMA_REQUEST_2                     ((uint32_t)0x00000002)
@@ -204,11 +259,13 @@ typedef struct __DMA_HandleTypeDef
                                      ((REQUEST) == DMA_REQUEST_8) || \
                                      ((REQUEST) == DMA_REQUEST_9) || \
                                      ((REQUEST) == DMA_REQUEST_11))
+#endif /* #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx) */
+
 /**
   * @}
   */
 
-/** @defgroup DMA_Data_transfer_direction 
+/** @defgroup DMA_Data_transfer_direction DMA Data Transfer directions
   * @{
   */ 
 #define DMA_PERIPH_TO_MEMORY         ((uint32_t)0x00000000)        /*!< Peripheral to memory direction */
@@ -222,7 +279,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Data_buffer_size 
+/** @defgroup DMA_Data_buffer_size DMA Data Buffer Size Check
   * @{
   */ 
 #define IS_DMA_BUFFER_SIZE(SIZE) (((SIZE) >= 0x1) && ((SIZE) < 0x10000))
@@ -230,7 +287,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */     
     
-/** @defgroup DMA_Peripheral_incremented_mode 
+/** @defgroup DMA_Peripheral_incremented_mode DMA Peripheral Incremented Mode
   * @{
   */ 
 #define DMA_PINC_ENABLE        ((uint32_t)DMA_CCR_PINC)  /*!< Peripheral increment mode Enable */
@@ -242,7 +299,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */ 
 
-/** @defgroup DMA_Memory_incremented_mode 
+/** @defgroup DMA_Memory_incremented_mode DMA Memory Incremented Mode
   * @{
   */ 
 #define DMA_MINC_ENABLE         ((uint32_t)DMA_CCR_MINC)  /*!< Memory increment mode Enable  */
@@ -254,7 +311,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Peripheral_data_size 
+/** @defgroup DMA_Peripheral_data_size DMA Peripheral Data Size Alignment
   * @{
   */ 
 #define DMA_PDATAALIGN_BYTE          ((uint32_t)0x00000000)       /*!< Peripheral data alignment : Byte     */
@@ -269,7 +326,7 @@ typedef struct __DMA_HandleTypeDef
   */ 
 
 
-/** @defgroup DMA_Memory_data_size
+/** @defgroup DMA_Memory_data_size DMA Memory Data Size Alignment
   * @{ 
   */
 #define DMA_MDATAALIGN_BYTE          ((uint32_t)0x00000000)       /*!< Memory data alignment : Byte     */
@@ -283,7 +340,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_mode 
+/** @defgroup DMA_mode DMA Mode
   * @{
   */ 
 #define DMA_NORMAL         ((uint32_t)0x00000000)       /*!< Normal Mode                  */
@@ -295,7 +352,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_Priority_level 
+/** @defgroup DMA_Priority_level DMA Priority Level
   * @{
   */
 #define DMA_PRIORITY_LOW             ((uint32_t)0x00000000)    /*!< Priority level : Low       */
@@ -312,7 +369,7 @@ typedef struct __DMA_HandleTypeDef
   */ 
 
 
-/** @defgroup DMA_interrupt_enable_definitions 
+/** @defgroup DMA_interrupt_enable_definitions DMA Interrupt Definitions
   * @{
   */
 
@@ -324,7 +381,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_flag_definitions 
+/** @defgroup DMA_flag_definitions DMA Flag Definitions
   * @{
   */ 
 
@@ -361,8 +418,16 @@ typedef struct __DMA_HandleTypeDef
 /**
   * @}
   */
-  
+
+/**
+  * @}
+  */  
+   
 /* Exported macro ------------------------------------------------------------*/
+
+/** @defgroup DMA_Exported_Macros DMA Exported Macros
+ * @{
+ */  
 
 /** @brief Reset DMA handle state
   * @param  __HANDLE__: DMA handle
@@ -393,6 +458,14 @@ typedef struct __DMA_HandleTypeDef
   * @retval The specified transfer complete flag index.
   */
 
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
+(((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TC1 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_FLAG_TC2 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel3))? DMA_FLAG_TC3 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel4))? DMA_FLAG_TC4 :\
+ DMA_FLAG_TC5)
+#else
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TC1 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_FLAG_TC2 :\
@@ -400,13 +473,21 @@ typedef struct __DMA_HandleTypeDef
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel4))? DMA_FLAG_TC4 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel5))? DMA_FLAG_TC5 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel6))? DMA_FLAG_TC6 :\
-   DMA_FLAG_TC7)
-
+   DMA_FLAG_TC7)    
+#endif
 /**
   * @brief  Returns the current DMA Channel half transfer complete flag.
   * @param  __HANDLE__: DMA handle
   * @retval The specified half transfer complete flag index.
-  */      
+  */
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define __HAL_DMA_GET_HT_FLAG_INDEX(__HANDLE__)\
+(((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_HT1 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_FLAG_HT2 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel3))? DMA_FLAG_HT3 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel4))? DMA_FLAG_HT4 :\
+ DMA_FLAG_HT5)
+#else 
 #define __HAL_DMA_GET_HT_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_HT1 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_FLAG_HT2 :\
@@ -415,12 +496,20 @@ typedef struct __DMA_HandleTypeDef
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel5))? DMA_FLAG_HT5 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel6))? DMA_FLAG_HT6 :\
    DMA_FLAG_HT7)
-
+#endif
 /**
   * @brief  Returns the current DMA Channel transfer error flag.
   * @param  __HANDLE__: DMA handle
   * @retval The specified transfer error flag index.
   */
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define __HAL_DMA_GET_TE_FLAG_INDEX(__HANDLE__)\
+(((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TE1 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_FLAG_TE2 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel3))? DMA_FLAG_TE3 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel4))? DMA_FLAG_TE4 :\
+ DMA_FLAG_TE5)
+#else   
 #define __HAL_DMA_GET_TE_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TE1 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_FLAG_TE2 :\
@@ -429,12 +518,20 @@ typedef struct __DMA_HandleTypeDef
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel5))? DMA_FLAG_TE5 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel6))? DMA_FLAG_TE6 :\
    DMA_FLAG_TE7)
-
+#endif
 /**
   * @brief  Returns the current DMA Channel Global interrupt flag.
   * @param  __HANDLE__: DMA handle
   * @retval The specified transfer error flag index.
   */
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define __HAL_DMA_GET_GI_FLAG_INDEX(__HANDLE__)\
+(((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_ISR_GIF1 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_ISR_GIF2 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel3))? DMA_ISR_GIF3 :\
+ ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel4))? DMA_ISR_GIF4 :\
+   DMA_ISR_GIF5)
+#else   
 #define __HAL_DMA_GET_GI_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_ISR_GIF1 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_ISR_GIF2 :\
@@ -443,6 +540,7 @@ typedef struct __DMA_HandleTypeDef
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel5))? DMA_ISR_GIF5 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel6))? DMA_ISR_GIF6 :\
    DMA_ISR_GIF7)
+#endif
 /**
   * @brief  Get the DMA Channel pending flags.
   * @param  __HANDLE__: DMA handle
@@ -469,7 +567,7 @@ typedef struct __DMA_HandleTypeDef
   *         Where x can be 0_4, 1_5, 2_6 or 3_7 to select the DMA Channel flag.   
   * @retval None
   */
-#define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) (DMA1->IFCR |= (__FLAG__))
+#define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) (DMA1->IFCR = (__FLAG__))
 
 /**
   * @brief  Enables the specified DMA Channel interrupts.
@@ -496,7 +594,7 @@ typedef struct __DMA_HandleTypeDef
 #define __HAL_DMA_DISABLE_IT(__HANDLE__, __INTERRUPT__)  ((__HANDLE__)->Instance->CCR &= ~(__INTERRUPT__))
 
 /**
-  * @brief  Checks whether the specified DMA Channel interrupt has occurred or not.
+  * @brief  Checks whether the specified DMA Channel interrupt is enabled or not.
   * @param  __HANDLE__: DMA handle
   * @param  __INTERRUPT__: specifies the DMA interrupt source to check.
   *          This parameter can be one of the following values:
@@ -507,12 +605,31 @@ typedef struct __DMA_HandleTypeDef
   */
 #define __HAL_DMA_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)  (((__HANDLE__)->Instance->CCR & (__INTERRUPT__)))
 
+/**
+  * @}
+  */  
 
 /* Exported functions --------------------------------------------------------*/
-  
+
+/** @defgroup DMA_Exported_Functions DMA Exported Functions
+  * @{
+  */
+
+/** @defgroup DMA_Exported_Functions_Group1 Initialization/de-initialization functions
+  * @{
+  */
+
 /* Initialization and de-initialization functions *****************************/
 HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma); 
 HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
+
+/**
+  * @}
+  */
+
+/** @defgroup DMA_Exported_Functions_Group2 I/O operation functions
+  * @{
+  */
 
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
@@ -520,11 +637,35 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
+/**
+  * @}
+  */
+
+/** @defgroup DMA_Exported_Functions_Group3 Peripheral State functions
+  * @{
+  */
 
 /* Peripheral State and Error functions ***************************************/
 HAL_DMA_StateTypeDef HAL_DMA_GetState(DMA_HandleTypeDef *hdma);
 uint32_t             HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
 
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup DMA_Private DMA Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
+  
 /**
   * @}
   */ 
@@ -540,3 +681,4 @@ uint32_t             HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
 #endif /* __STM32L0xx_HAL_DMA_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

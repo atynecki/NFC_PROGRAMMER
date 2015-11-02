@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    cpu_utils.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    18-February-2014
+  * @version V1.1.0
+  * @date    20-November-2014
   * @brief   Utilities for CPU Load calculation
   ******************************************************************************
   * @attention
@@ -111,7 +111,7 @@ void StartIdleMonitor (void)
 {
   if( xTaskGetCurrentTaskHandle() == xIdleHandle ) 
   {
-    osCPU_IdleStartTime = xTaskGetTickCount();
+    osCPU_IdleStartTime = xTaskGetTickCountFromISR();
   }
 }
 
@@ -125,7 +125,7 @@ void EndIdleMonitor (void)
   if( xTaskGetCurrentTaskHandle() == xIdleHandle )
   {
     /* Store the handle to the idle task. */
-    osCPU_IdleSpentTime = xTaskGetTickCount() - osCPU_IdleStartTime;
+    osCPU_IdleSpentTime = xTaskGetTickCountFromISR() - osCPU_IdleStartTime;
     osCPU_TotalIdleTime += osCPU_IdleSpentTime; 
   }
 }
