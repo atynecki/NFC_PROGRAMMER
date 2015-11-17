@@ -636,6 +636,11 @@
               <FileType>1</FileType>
               <FilePath>.\libraries\BSP\STM32L0538-Discovery\stm32l0538_discovery_epd.c</FilePath>
             </File>
+            <File>
+              <FileName>M24LR04E-R_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\M24LR04E-R_driver.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -1,9 +1,5 @@
 
-/* Includes ------------------------------------------------------------------*/
 #include "app_manager.h"
-#include "picture.h"
-
-USBD_HandleTypeDef USBD_Device;
 
 int main(void)
 {
@@ -11,46 +7,57 @@ int main(void)
 
 	/* Configure the system clock to get correspondent USB clock source */
   system_clock_init();
-
-	BSP_EPD_Init();
-	BSP_EPD_DrawImage(0, 0, 72, 172, (uint8_t*) welcome_image);
-	BSP_EPD_RefreshDisplay();
 	
-	/* Init Device Library */
-  USBD_Init(&USBD_Device, &VCP_Desc, 0);
-  
-  /* Add Supported Class */
-  USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
-  
-  /* Add CDC Interface Class */
-  USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
-  
-  /* Start Device Process */
-  USBD_Start(&USBD_Device);
+	LED_init();
+	
+	display_welcome_view();
+	
+	USB_init();
+	get_app_config()->mode = NFC_DETECT;
+	get_app_config()->start_flag = 1;
+	get_app_config()->error_code = (uint8_t*)(ERROR_DEAFULT);
+	
+	HAL_Delay(1000);
 	
   /* Infinite loop */
   while (1)
   {
+		switch(get_app_config()->mode){
+			case NFC_DETECT:
+				if(get_app_config()->start_flag == 1){
+					get_app_config()->start_flag = 0;
+					connect_nfc_board_message();
+					BSP_LED_On(LED4);
+				}
+				check_nfc_connect();
+				HAL_Delay(100);
+				break;
+				
+			case USB_SEND_TEXT:
+				if(get_app_config()->start_flag == 1) {
+					get_app_config()->start_flag = 0;
+					USB_send_data_message();
+				}
+				break;
+				
+			case TEXT_RECEIVED:
+			if(get_app_config()->start_flag == 1) {
+				get_app_config()->start_flag = 0;
+				display_received_text();
+			}
+			break;
+			
+			case TEXT_SEND:
+			if(get_app_config()->start_flag == 1) {
+				get_app_config()->start_flag = 0;
+				send_text_to_nfc();
+			}
+			break;
+			
+			default:
+				error_message(get_app_config()->error_code);
+			break;
+				
+		}
   }
 }
-
-#ifdef  USE_FULL_ASSERT
-
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t* file, uint32_t line)
-{ 
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-  /* Infinite loop */
-  while (1)
-  {
-  }
-}
-#endif

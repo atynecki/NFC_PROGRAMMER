@@ -1,21 +1,10 @@
 
-/* Includes ------------------------------------------------------------------*/
 #include "app_manager.h"
+#include "picture.h"
 
 app_config_t app_config;
-I2C_HandleTypeDef I2CHandle;
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
-void Error_Handler(void)
-{
-  while(1)
-  {
-  }
-}
+USBD_HandleTypeDef USBD_Device;
+uint8_t* message_tab[3];
 
 /**
   * @brief  System Clock Configuration
@@ -87,24 +76,205 @@ void system_clock_init ()
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 }
 
-void I2C_init () {
-	I2CHandle.Instance              = I2C;
-  I2CHandle.Init.AddressingMode   = I2C_ADDRESSINGMODE_10BIT;
-  I2CHandle.Init.Timing           = I2C_TIMING_400KHZ;
-  I2CHandle.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
-  I2CHandle.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  I2CHandle.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
-  I2CHandle.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
-  I2CHandle.Init.OwnAddress1      = I2C_ADDRESS;
-  I2CHandle.Init.OwnAddress2      = 0xFE;
-  if(HAL_I2C_Init(&I2CHandle) != HAL_OK)
-  {
-    /* Initialization Error */
-    Error_Handler();    
+void USB_init ()
+{
+	/* Init Device Library */
+  //USBD_Init(&USBD_Device, &VCP_Desc, 0);
+  
+  /* Add Supported Class */
+  //USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
+  
+  /* Add CDC Interface Class */
+  //USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
+  
+  /* Start Device Process */
+  //USBD_Start(&USBD_Device);
+}
+
+void LED_init()
+{
+	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED4);
+}
+
+void display_welcome_view ()
+{
+	BSP_EPD_Init();
+	BSP_EPD_DrawImage(0, 0, 72, 172, (uint8_t*) welcome_image);
+	BSP_EPD_RefreshDisplay();
+}
+
+static void display_message (uint8_t** text_tab, uint8_t line_num)
+{
+	uint8_t counter;
+	BSP_EPD_DrawImage(0, 0, 72, 172, (uint8_t*) header_image);
+	
+	for(counter = 0; counter<line_num; counter++){
+		if(text_tab[counter] !=NULL)
+			BSP_EPD_DisplayStringAt(0, LINE(counter), text_tab[counter], CENTER_MODE);
+	}
+	
+	BSP_EPD_RefreshDisplay();
+}
+
+void connect_nfc_board_message ()
+{
+	message_tab[2] = NULL;
+	message_tab[1] = (uint8_t*)(CONNECT_NFC_BOARD_PART1);
+	message_tab[0] = (uint8_t*)(CONNECT_NFC_BOARD_PART2);
+	
+	display_message(message_tab, 3);
+}
+
+void USB_send_data_message ()
+{
+	message_tab[2] = NULL;
+	message_tab[1] = (uint8_t*)(USB_SEND_TEXT_PART1);
+	message_tab[0] = (uint8_t*)(USB_SEND_TEXT_PART2);
+	
+	display_message(message_tab, 3);
+}
+
+void error_message (uint8_t* error_code)
+{
+	message_tab[2] = NULL;
+	message_tab[1] = (uint8_t*)(ERROR_TEXT);
+	message_tab[0] = error_code;
+	
+	display_message(message_tab, 3);
+}
+
+
+void display_received_text ()
+{
+	uint8_t message_part1[15];
+	uint8_t message_part2[15];
+	uint8_t message_part3[15];
+	
+	message_tab[2] = message_part1;
+	message_tab[1] = message_part2;
+	message_tab[0] = message_part3;
+	
+	display_message(message_tab, 3);
+}
+
+static ErrorStatus check_nfc_ready ()
+{
+	uint8_t read_value;
+
+	M24LR04E_read_byte(M24LR04E_CONFIG1_ADDRESS, &read_value);
+	if (read_value != 0xE1)
+     return ERROR;
+  
+  M24LR04E_read_byte(M24LR04E_CONFIG2_ADDRESS, &read_value);
+  if (read_value != 0x54)
+      return ERROR;
+
+  return SUCCESS;	
+}
+
+void check_nfc_connect ()
+{
+	uint8_t read_value;
+
+	M24LR04E_init();
+	M24LR04E_read_byte(M24LR04E_CONFIG1_ADDRESS, &read_value);
+	if (read_value == 0xE1){
+		BSP_LED_Off(LED4);
+		BSP_LED_On(LED3);
+		get_app_config()->mode = USB_SEND_TEXT;
+		get_app_config()->start_flag = 1;
+	}	
+}
+
+ErrorStatus send_text_to_nfc ()
+{
+	uint8_t iteration_num = 0;
+	uint8_t counter;
+	uint8_t text_length =  get_app_config()->text_frame_length;
+  uint8_t *data_pointer = get_app_config()->text_frame;
+  uint16_t text_address = M24LR04E_TEXT_ADDRESS;
+  
+  iteration_num = text_length/4;
+  if(iteration_num%4 !=0)
+    iteration_num+=1;
+  
+  M24LR04E_init();
+  if(check_nfc_ready() == SUCCESS){
+    for(counter=0; counter<iteration_num; counter++){
+      M24LR04E_write_page(text_address, data_pointer);
+			HAL_Delay(10);
+			if(counter < iteration_num - 1){ 
+				text_address+=4;
+				data_pointer+=4;
+			}
+    }
   }
+  else 
+    return ERROR;
+
+  M24LR04E_write_byte(M24LR04E_MESSAGE_LEN_ADDRESS, text_length+1);
+  HAL_Delay(10);
+  
+  M24LR04E_deinit();
+  
+  return SUCCESS;
+}
+
+/**
+  * @brief  Tx Transfer completed callback.
+  * @param  I2CxHandle: I2C handle 
+  * @note   This example shows a simple way to report end of IT Tx transfer, and 
+  *         you can add your own implementation. 
+  * @retval None
+  */
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *I2CxHandle)
+{
+  /* Turn LED3 on: Transfer in transmission process is correct */
+  BSP_LED_On(LED3);
+ 
+}
+
+/**
+  * @brief  Rx Transfer completed callback.
+  * @param  I2CxHandle: I2C handle
+  * @note   This example shows a simple way to report end of IT Rx transfer, and 
+  *         you can add your own implementation.
+  * @retval None
+  */
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *I2CxHandle)
+{
+  /* Turn LED3 on: Transfer in reception process is correct */
+  BSP_LED_On(LED3);
+}
+
+/**
+  * @brief  I2C error callbacks
+  * @param  I2CxHandle: I2C handle
+  * @note   This example shows a simple way to report transfer error, and you can
+  *         add your own implementation.
+  * @retval None
+  */
+ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2CxHandle)
+{ 
+  while(1)
+  {
+  } 
 }
 
 app_config_p get_app_config ()
 {
 	return &app_config;
+}
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @param  None
+  * @retval None
+  */
+void Error_Handler ()
+{
+	if(get_app_config()->mode != NFC_DETECT){
+		while(1){ }
+	}
 }

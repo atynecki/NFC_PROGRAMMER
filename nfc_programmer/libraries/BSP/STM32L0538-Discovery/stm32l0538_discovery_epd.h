@@ -100,7 +100,7 @@ typedef enum
 /**
   * @brief EPD default font
   */
-#define EPD_DEFAULT_FONT         Font12
+#define EPD_DEFAULT_FONT         Font16
 
 /**
   * @}
