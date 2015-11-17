@@ -68,21 +68,27 @@ typedef enum MODE
 #define USB_SEND_TEXT_PART1						"SEND TEXT"
 #define USB_SEND_TEXT_PART2						"TO PROGRAM"
 
+#define CONTINUE_TEXT_PART1						"PROGRAM END"
+#define CONTINUE_TEXT_PART2						"PUSH BUTTON"
+#define CONTINUE_TEXT_PART3						"TO CONTINUE"
+
 #define ERROR_TEXT										"ERROR"
 
 void system_clock_init(void);
 void USB_init(void);
-void LED_init(void);
+void LED_button_init(void);
 
 void display_welcome_view(void);
 void connect_nfc_board_message(void);
 void USB_send_data_message(void);
+void continue_message(void);
 void error_message (uint8_t* error_code);
 
 void display_received_text(void);
 
 void check_nfc_connect(void);
 ErrorStatus send_text_to_nfc(void);
+void LEDs_blink(void);
 
 app_config_p get_app_config(void);
 void Error_Handler(void);

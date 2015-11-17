@@ -63,6 +63,11 @@ void SysTick_Handler(void)
   HAL_IncTick();
 }
 
+void EXTI0_1_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(KEY_BUTTON_PIN);
+}
+
 /**
   * @brief  This function handles I2C event interrupt request.  
   * @param  None

@@ -91,11 +91,13 @@ void USB_init ()
   //USBD_Start(&USBD_Device);
 }
 
-void LED_init()
+void LED_button_init()
 {
 	BSP_LED_Init(LED3);
 	BSP_LED_Init(LED4);
+	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 }
+
 
 void display_welcome_view ()
 {
@@ -131,6 +133,15 @@ void USB_send_data_message ()
 	message_tab[2] = NULL;
 	message_tab[1] = (uint8_t*)(USB_SEND_TEXT_PART1);
 	message_tab[0] = (uint8_t*)(USB_SEND_TEXT_PART2);
+	
+	display_message(message_tab, 3);
+}
+
+void continue_message ()
+{
+	message_tab[2] = (uint8_t*)(CONTINUE_TEXT_PART1);
+	message_tab[1] = (uint8_t*)(CONTINUE_TEXT_PART2);
+	message_tab[0] = (uint8_t*)(CONTINUE_TEXT_PART3);
 	
 	display_message(message_tab, 3);
 }
@@ -180,7 +191,6 @@ void check_nfc_connect ()
 	M24LR04E_init();
 	M24LR04E_read_byte(M24LR04E_CONFIG1_ADDRESS, &read_value);
 	if (read_value == 0xE1){
-		BSP_LED_Off(LED4);
 		BSP_LED_On(LED3);
 		get_app_config()->mode = USB_SEND_TEXT;
 		get_app_config()->start_flag = 1;
@@ -219,6 +229,33 @@ ErrorStatus send_text_to_nfc ()
   M24LR04E_deinit();
   
   return SUCCESS;
+}
+
+void LEDs_blink ()
+{
+	BSP_LED_Toggle(LED3);
+	BSP_LED_Toggle(LED4);
+	HAL_Delay(400);
+}
+
+/**
+  * @brief EXTI line detection callback.
+  * @param GPIO_Pin: Specifies the pins connected EXTI line
+  * @retval None
+  */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if(GPIO_Pin == KEY_BUTTON_PIN)
+  {
+    if(get_app_config()->mode == TEXT_RECEIVED){
+			get_app_config()->mode = TEXT_SEND;
+			get_app_config()->start_flag = 1;
+		}
+		else if(get_app_config()->mode == TEXT_SEND){
+			get_app_config()->mode = NFC_DETECT;
+			get_app_config()->start_flag = 1;
+		}
+  }
 }
 
 /**

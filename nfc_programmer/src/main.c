@@ -8,7 +8,7 @@ int main(void)
 	/* Configure the system clock to get correspondent USB clock source */
   system_clock_init();
 	
-	LED_init();
+	LED_button_init();
 	
 	display_welcome_view();
 	
@@ -27,7 +27,8 @@ int main(void)
 				if(get_app_config()->start_flag == 1){
 					get_app_config()->start_flag = 0;
 					connect_nfc_board_message();
-					BSP_LED_On(LED4);
+					BSP_LED_Off(LED3);
+					BSP_LED_Off(LED4);
 				}
 				check_nfc_connect();
 				HAL_Delay(100);
@@ -41,17 +42,20 @@ int main(void)
 				break;
 				
 			case TEXT_RECEIVED:
-			if(get_app_config()->start_flag == 1) {
-				get_app_config()->start_flag = 0;
-				display_received_text();
-			}
+				if(get_app_config()->start_flag == 1) {
+					get_app_config()->start_flag = 0;
+					display_received_text();
+					BSP_LED_On(LED4);
+				}
 			break;
 			
 			case TEXT_SEND:
 			if(get_app_config()->start_flag == 1) {
 				get_app_config()->start_flag = 0;
 				send_text_to_nfc();
+				continue_message();
 			}
+			LEDs_blink();
 			break;
 			
 			default:
