@@ -255,7 +255,7 @@ void get_USB_text (uint8_t value)
 		get_app_config()->start_flag = 1;
 	}
 	
-	if((get_app_config()->USB_text_received == 1) && (get_app_config()->text_frame_length < MAX_TEXT_LEN +1))
+	if((get_app_config()->USB_text_received == 1) && (get_app_config()->text_frame_length < MAX_TEXT_LEN +2))
 		get_app_config()->text_frame[get_app_config()->text_frame_length++] = value;
 	
 	if((get_app_config()->USB_text_received == 0) &&(header_buffer[0] == '@') && (header_buffer[1] == '<'))
@@ -264,26 +264,37 @@ void get_USB_text (uint8_t value)
 
 static void parse_text_to_line (uint8_t* text, uint8_t text_length, uint8_t** parse_text)
 {
-	uint8_t i;
-	uint8_t counter;
-	uint8_t* text_ptr;
-	text_length-=2;
-	if(text_length <= SIGN_IN_LINE){
-		for(i=0; i<SIGN_IN_LINE; i++){
-			parse_text[0][i] = text[i+1];
-			parse_text[1][i] = 0;
-			parse_text[2][i] = 0;
+	uint8_t row = 0;
+	uint8_t column = 0;
+	uint8_t counter = 0;
+	uint8_t* text_ptr = ++text;
+	
+	while(counter < text_length-2) {
+		if(column == SIGN_IN_LINE-1){
+			if((*text_ptr != ' ') &&(counter < text_length-3))
+				parse_text[row][column++] = '-';
+			else {
+				parse_text[row][column++] = *text_ptr++;
+				counter++;
+			}
 		}
-	}
-	else{
+		else {
+			parse_text[row][column++] = *text_ptr++;
+			counter++;
+		}
+		
+		if(column == SIGN_IN_LINE){
+			column = 0;
+			row++;
+		}
 	}
 }
 
 void display_received_text ()
 {
-	uint8_t message_part1[SIGN_IN_LINE];
-	uint8_t message_part2[SIGN_IN_LINE];
-	uint8_t message_part3[SIGN_IN_LINE];
+	uint8_t message_part1[SIGN_IN_LINE] = {0};
+	uint8_t message_part2[SIGN_IN_LINE] = {0};
+	uint8_t message_part3[SIGN_IN_LINE] = {0};
 	uint8_t* parse_message_tab[DISPLAY_LINE_NUMBER] = {message_part1, message_part2, message_part3};
 	
 	parse_text_to_line(get_app_config()->text_frame, get_app_config()->text_frame_length, parse_message_tab);
@@ -360,7 +371,8 @@ ErrorStatus send_text_to_nfc ()
   else 
     return ERROR;
 
-  M24LR04E_write_byte(M24LR04E_MESSAGE_LEN_ADDRESS, text_length+1);
+	HAL_Delay(10);
+  M24LR04E_write_byte(M24LR04E_MESSAGE_LEN_ADDRESS, text_length);
   HAL_Delay(10);
   
   M24LR04E_deinit();
@@ -382,44 +394,10 @@ void LEDs_blink ()
   */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if(GPIO_Pin == KEY_BUTTON_PIN)
-  {
-    if(get_app_config()->mode == TEXT_RECEIVED){
-			get_app_config()->mode = TEXT_SEND;
-			get_app_config()->start_flag = 1;
-		}
-		else if(get_app_config()->mode == TEXT_SEND){
-			get_app_config()->mode = NFC_DETECT;
-			get_app_config()->start_flag = 1;
-		}
+  if(GPIO_Pin == KEY_BUTTON_PIN) {
+		get_app_config()->mode = NFC_DETECT;
+		get_app_config()->start_flag = 1;
   }
-}
-
-/**
-  * @brief  Tx Transfer completed callback.
-  * @param  I2CxHandle: I2C handle 
-  * @note   This example shows a simple way to report end of IT Tx transfer, and 
-  *         you can add your own implementation. 
-  * @retval None
-  */
-void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *I2CxHandle)
-{
-  /* Turn LED3 on: Transfer in transmission process is correct */
-  BSP_LED_On(LED3);
- 
-}
-
-/**
-  * @brief  Rx Transfer completed callback.
-  * @param  I2CxHandle: I2C handle
-  * @note   This example shows a simple way to report end of IT Rx transfer, and 
-  *         you can add your own implementation.
-  * @retval None
-  */
-void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *I2CxHandle)
-{
-  /* Turn LED3 on: Transfer in reception process is correct */
-  BSP_LED_On(LED3);
 }
 
 /**

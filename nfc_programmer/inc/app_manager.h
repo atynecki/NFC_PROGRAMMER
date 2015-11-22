@@ -48,7 +48,7 @@
 
 #define MAX_TEXT_LEN                      40
 #define DISPLAY_LINE_NUMBER								 3
-#define SIGN_IN_LINE										 	15
+#define SIGN_IN_LINE										 	14
 #define USB_NOTIFY_BUFF_LEN								 7
 typedef struct 
 {
