@@ -1,5 +1,4 @@
 
-/* Includes ------------------------------------------------------------------*/
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_conf.h"
@@ -7,7 +6,7 @@
 #define USBD_VID                      0x0483
 #define USBD_PID                      0x5710
 #define USBD_LANGID_STRING            0x409
-#define USBD_MANUFACTURER_STRING      "MARM Project"
+#define USBD_MANUFACTURER_STRING      "ArturT"
 #define USBD_PRODUCT_FS_STRING        "STM32 NFC Programmer"
 #define USBD_CONFIGURATION_FS_STRING  "VCP Config"
 #define USBD_INTERFACE_FS_STRING      "VCP Interface"

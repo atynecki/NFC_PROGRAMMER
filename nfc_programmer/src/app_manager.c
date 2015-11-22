@@ -4,12 +4,15 @@
 
 app_config_t app_config;
 USBD_HandleTypeDef USBD_Device;
-uint8_t* message_tab[3];
+uint8_t* message_tab[DISPLAY_LINE_NUMBER];
+uint8_t header_buffer[2];
+uint8_t notify_buffer[USB_NOTIFY_BUFF_LEN] = {'S','U','C','C','E','S','S'};
 
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow:
-  *         HSI48 used as USB clock source 
+  *  
+  *            HSI48 used as USB clock source (USE_USB_CLKSOURCE_CRSHSI48 defined in main.h)
   *              - System Clock source            = HSI
   *              - HSI Frequency(Hz)              = 16000000
   *              - SYSCLK(Hz)                     = 16000000
@@ -19,16 +22,46 @@ uint8_t* message_tab[3];
   *              - APB2 Prescaler                 = 1
   *              - Flash Latency(WS)              = 0
   *              - Main regulator output voltage  = Scale1 mode
+  *
+  *            PLL(HSE) used as USB clock source (USE_USB_CLKSOURCE_PLL defined in main.h)
+  *              - System Clock source            = PLL (HSE)
+  *              - HSE Frequency(Hz)              = 8000000
+  *              - SYSCLK(Hz)                     = 32000000
+  *              - HCLK(Hz)                       = 32000000
+  *              - AHB Prescaler                  = 1
+  *              - APB1 Prescaler                 = 1
+  *              - APB2 Prescaler                 = 1
+  *              - PLL_MUL                        = 12
+  *              - PLL_DIV                        = 3
+  *              - Flash Latency(WS)              = 1
+  *              - Main regulator output voltage  = Scale1 mode
+  *
   * @param  None
   * @retval None
   */
 void system_clock_init ()
 {
-	RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-  RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct;
+	RCC_ClkInitTypeDef RCC_ClkInitStruct ={0};
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct = {0};
+	
+#if defined (USE_USB_CLKSOURCE_CRSHSI48)
   static RCC_CRSInitTypeDef RCC_CRSInitStruct;
+#endif
   
+  /* Enable Power Control clock */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  
+  /* The voltage scaling allows optimizing the power consumption when the device is 
+  clocked below the maximum system frequency, to update the voltage scaling value 
+  regarding system frequency refer to product datasheet.  */
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  
+  /* Disable Power Control clock */
+  __HAL_RCC_PWR_CLK_DISABLE();
+  
+#if defined (USE_USB_CLKSOURCE_CRSHSI48)
+ 
   /* Enable HSI Oscillator to be used as System clock source
      Enable HSI48 Oscillator to be used as USB clock source */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
@@ -53,7 +86,7 @@ void system_clock_init ()
   /*Configure the clock recovery system (CRS)**********************************/
   
   /*Enable CRS Clock*/
-  __HAL_RCC_CRS_CLK_ENABLE();
+  __HAL_RCC_CRS_CLK_ENABLE(); 
   
   /* Default Synchro Signal division factor (not divided) */
   RCC_CRSInitStruct.Prescaler = RCC_CRS_SYNC_DIV1;  
@@ -66,29 +99,54 @@ void system_clock_init ()
   RCC_CRSInitStruct.HSI48CalibrationValue = 0x20;   
   /* Start automatic synchronization */ 
   HAL_RCCEx_CRSConfig (&RCC_CRSInitStruct);
-   
-  /* Enable Power Controller clock */
-  __HAL_RCC_PWR_CLK_ENABLE();
   
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-  clocked below the maximum system frequency, to update the voltage scaling value 
-  regarding system frequency refer to product datasheet. */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+#elif defined (USE_USB_CLKSOURCE_PLL)
+  
+  /* Enable HSE Oscillator */
+  RCC_OscInitStruct.OscillatorType  = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState        = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLSource   = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLState    = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLMUL      = RCC_PLLMUL_12;
+  RCC_OscInitStruct.PLL.PLLDIV      = RCC_PLLDIV_3;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct)!= HAL_OK)
+  {
+    Error_Handler();
+  }
+  
+  /*Select PLL 48 MHz output as USB clock source */
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+  PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
+  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+  
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 
+     clocks dividers */
+  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;  
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;  
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1)!= HAL_OK)
+  {
+    Error_Handler();
+  }
+  
+#endif /*USE_USB_CLKSOURCE_CRSHSI48*/
 }
 
 void USB_init ()
 {
 	/* Init Device Library */
-  //USBD_Init(&USBD_Device, &VCP_Desc, 0);
+  USBD_Init(&USBD_Device, &VCP_Desc, 0);
   
   /* Add Supported Class */
-  //USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
+  USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
   
   /* Add CDC Interface Class */
-  //USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
+  USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
   
   /* Start Device Process */
-  //USBD_Start(&USBD_Device);
+  USBD_Start(&USBD_Device);
 }
 
 void LED_button_init()
@@ -119,13 +177,26 @@ static void display_message (uint8_t** text_tab, uint8_t line_num)
 	BSP_EPD_RefreshDisplay();
 }
 
+static void display_text (uint8_t** text_tab, uint8_t line_num)
+{
+	uint8_t counter;
+	BSP_EPD_DrawImage(0, 0, 72, 172, (uint8_t*) header_image);
+	
+	for(counter = 0; counter<line_num; counter++){
+		if(text_tab[counter] !=NULL)
+			BSP_EPD_DisplayStringAt(0, LINE(counter), text_tab[counter], LEFT_MODE);
+	}
+	
+	BSP_EPD_RefreshDisplay();
+}
+
 void connect_nfc_board_message ()
 {
 	message_tab[2] = NULL;
 	message_tab[1] = (uint8_t*)(CONNECT_NFC_BOARD_PART1);
 	message_tab[0] = (uint8_t*)(CONNECT_NFC_BOARD_PART2);
 	
-	display_message(message_tab, 3);
+	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
 
 void USB_send_data_message ()
@@ -134,7 +205,7 @@ void USB_send_data_message ()
 	message_tab[1] = (uint8_t*)(USB_SEND_TEXT_PART1);
 	message_tab[0] = (uint8_t*)(USB_SEND_TEXT_PART2);
 	
-	display_message(message_tab, 3);
+	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
 
 void continue_message ()
@@ -143,7 +214,7 @@ void continue_message ()
 	message_tab[1] = (uint8_t*)(CONTINUE_TEXT_PART2);
 	message_tab[0] = (uint8_t*)(CONTINUE_TEXT_PART3);
 	
-	display_message(message_tab, 3);
+	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
 
 void error_message (uint8_t* error_code)
@@ -152,21 +223,87 @@ void error_message (uint8_t* error_code)
 	message_tab[1] = (uint8_t*)(ERROR_TEXT);
 	message_tab[0] = error_code;
 	
-	display_message(message_tab, 3);
+	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
 
+void text_buffer_init ()
+{
+	uint8_t counter;
+	get_app_config()->text_frame_length = 0;
+	for(counter=0; counter<MAX_TEXT_LEN+2; counter++){
+		get_app_config()->text_frame[counter] = 0;
+	}
+	get_app_config()->USB_text_received = 0;
+	
+	get_app_config()->text_frame[get_app_config()->text_frame_length++] = 0xFE;
+}
+
+void USB_send_notify ()
+{
+	USBD_CDC_fops.Control(CDC_SEND_ENCAPSULATED_COMMAND, notify_buffer, USB_NOTIFY_BUFF_LEN);
+}
+
+void get_USB_text (uint8_t value)
+{
+	header_buffer[0] = header_buffer[1];
+	header_buffer[1] = value;
+	
+	if((get_app_config()->USB_text_received == 1)&&(header_buffer[0] == '>') && (header_buffer[1] == '@')){
+		get_app_config()->USB_text_received = 0;
+		get_app_config()->text_frame[get_app_config()->text_frame_length-1] = 0xFE;
+		get_app_config()->mode = TEXT_RECEIVED;
+		get_app_config()->start_flag = 1;
+	}
+	
+	if((get_app_config()->USB_text_received == 1) && (get_app_config()->text_frame_length < MAX_TEXT_LEN +1))
+		get_app_config()->text_frame[get_app_config()->text_frame_length++] = value;
+	
+	if((get_app_config()->USB_text_received == 0) &&(header_buffer[0] == '@') && (header_buffer[1] == '<'))
+		get_app_config()->USB_text_received = 1;
+}
+
+static void parse_text_to_line (uint8_t* text, uint8_t text_length, uint8_t** parse_text)
+{
+	uint8_t i;
+	uint8_t counter;
+	uint8_t* text_ptr;
+	text_length-=2;
+	if(text_length <= SIGN_IN_LINE){
+		for(i=0; i<SIGN_IN_LINE; i++){
+			parse_text[0][i] = text[i+1];
+			parse_text[1][i] = 0;
+			parse_text[2][i] = 0;
+		}
+	}
+	else{
+	}
+}
 
 void display_received_text ()
 {
-	uint8_t message_part1[15];
-	uint8_t message_part2[15];
-	uint8_t message_part3[15];
+	uint8_t message_part1[SIGN_IN_LINE];
+	uint8_t message_part2[SIGN_IN_LINE];
+	uint8_t message_part3[SIGN_IN_LINE];
+	uint8_t* parse_message_tab[DISPLAY_LINE_NUMBER] = {message_part1, message_part2, message_part3};
 	
-	message_tab[2] = message_part1;
-	message_tab[1] = message_part2;
-	message_tab[0] = message_part3;
+	parse_text_to_line(get_app_config()->text_frame, get_app_config()->text_frame_length, parse_message_tab);
 	
-	display_message(message_tab, 3);
+	if(message_part1[0] != 0)
+		message_tab[2] = message_part1;
+	else
+		message_tab[2] = NULL;
+	
+	if(message_part2[0] != 0)
+		message_tab[1] = message_part2;
+	else
+		message_tab[1] = NULL;
+	
+	if(message_part3[0] != 0)
+		message_tab[0] = message_part3;
+	else
+		message_tab[0] = NULL;
+	
+	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
 
 static ErrorStatus check_nfc_ready ()

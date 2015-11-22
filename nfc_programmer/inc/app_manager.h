@@ -2,7 +2,6 @@
 #ifndef __APP_MANAGER_H
 #define __APP_MANAGER_H
 
-/* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 #include "stm32l0538_discovery.h"
 #include "stm32l0538_discovery_epd.h"
@@ -12,6 +11,13 @@
 #include "usbd_desc.h"
 #include "usbd_cdc.h" 
 #include "usbd_cdc_interface.h"
+
+#define USE_USB_CLKSOURCE_CRSHSI48   1
+//#define USE_USB_CLKSOURCE_PLL        1
+
+#if !defined (USE_USB_CLKSOURCE_PLL) && !defined (USE_USB_CLKSOURCE_CRSHSI48)
+ #error "Missing USB clock definition"
+#endif
 
 /** I2C config */
 #define I2C                              I2C1
@@ -40,16 +46,17 @@
 /* Timing samples with SYSCLK 32MHz set in SystemClock_Config() */ 
 #define I2C_TIMING_100KHZ       				0x10A13E56 /* Analog Filter ON, Rise Time 400ns, Fall Time 100ns */
 
-/* Error code value */
-#define ERROR_DEAFULT											"0"
-
 #define MAX_TEXT_LEN                      40
+#define DISPLAY_LINE_NUMBER								 3
+#define SIGN_IN_LINE										 	15
+#define USB_NOTIFY_BUFF_LEN								 7
 typedef struct 
 {
 	uint8_t mode;
 	uint8_t start_flag;
 	uint8_t text_frame[MAX_TEXT_LEN+2];
 	uint8_t text_frame_length;
+	uint8_t USB_text_received;
 	uint8_t* error_code;
 } app_config_t, *app_config_p;
 
@@ -61,6 +68,8 @@ typedef enum MODE
 	TEXT_SEND
 } mode;
 
+/* Error code value */
+#define ERROR_DEAFULT									"0"
 
 #define CONNECT_NFC_BOARD_PART1				"CONNECT"
 #define CONNECT_NFC_BOARD_PART2				"NFC BOARD"
@@ -84,9 +93,14 @@ void USB_send_data_message(void);
 void continue_message(void);
 void error_message (uint8_t* error_code);
 
+void check_nfc_connect(void);
+
+void text_buffer_init(void);
+void get_USB_text(uint8_t value);
+
+void USB_send_notify(void);
 void display_received_text(void);
 
-void check_nfc_connect(void);
 ErrorStatus send_text_to_nfc(void);
 void LEDs_blink(void);
 

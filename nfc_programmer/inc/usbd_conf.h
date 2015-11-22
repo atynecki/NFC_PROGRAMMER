@@ -2,11 +2,10 @@
 #ifndef __USBD_CONF_H
 #define __USBD_CONF_H
 
-/* Includes ------------------------------------------------------------------*/
-#include "stm32l0xx_hal.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "stm32l0xx_hal.h"
 
 /* Common Config */
 #define USBD_MAX_NUM_INTERFACES               1
@@ -16,18 +15,12 @@
 #define USBD_SELF_POWERED                     1
 #define USBD_DEBUG_LEVEL                      0
 
-/* For footprint reasons and since only one allocation is handled in the CDC class 
-   driver, the malloc/free is changed into a static allocation method */
+#define MAX_STATIC_ALLOC_SIZE    							140 /* CDC Class Driver Structure size */
 
-void *USBD_static_malloc(uint32_t size);
-void USBD_static_free(void *p);
-
-#define MAX_STATIC_ALLOC_SIZE    	140 /* CDC Class Driver Structure size */
-
-#define USBD_malloc               (uint32_t *)USBD_static_malloc
-#define USBD_free                 USBD_static_free
-#define USBD_memset               /* Not used */
-#define USBD_memcpy               /* Not used */
+#define USBD_malloc               						(uint32_t *)USBD_static_malloc
+#define USBD_free                 						USBD_static_free
+#define USBD_memset               						/* Not used */
+#define USBD_memcpy               						/* Not used */
 
     
 /* DEBUG macros */  
@@ -54,5 +47,8 @@ void USBD_static_free(void *p);
 #else
 #define USBD_DbgLog(...)                         
 #endif
+
+void *USBD_static_malloc(uint32_t size);
+void USBD_static_free(void *p);
 
 #endif /* __USBD_CONF_H */

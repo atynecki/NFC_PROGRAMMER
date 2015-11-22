@@ -1,8 +1,6 @@
 
-/* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 #include "usbd_core.h"
-#include "app_manager.h"
 
 PCD_HandleTypeDef hpcd;
 

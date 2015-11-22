@@ -3,6 +3,7 @@
 #include "app_manager.h"
 
 extern I2C_HandleTypeDef I2CHandle;
+extern PCD_HandleTypeDef hpcd;
 
 /**
   * @brief   This function handles NMI exception.
@@ -78,4 +79,14 @@ void I2C_IRQHandler(void)
 {
   HAL_I2C_EV_IRQHandler(&I2CHandle);
   HAL_I2C_ER_IRQHandler(&I2CHandle);
+}
+
+/**
+  * @brief  This function handles USB Handler.
+  * @param  None
+  * @retval None
+  */
+void USB_IRQHandler(void)
+{
+  HAL_PCD_IRQHandler(&hpcd);
 }
