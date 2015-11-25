@@ -6,7 +6,6 @@ app_config_t app_config;
 USBD_HandleTypeDef USBD_Device;
 uint8_t* message_tab[DISPLAY_LINE_NUMBER];
 uint8_t header_buffer[2];
-uint8_t notify_buffer[USB_NOTIFY_BUFF_LEN] = {'S','U','C','C','E','S','S'};
 
 /**
   * @brief  System Clock Configuration
@@ -35,9 +34,6 @@ uint8_t notify_buffer[USB_NOTIFY_BUFF_LEN] = {'S','U','C','C','E','S','S'};
   *              - PLL_DIV                        = 3
   *              - Flash Latency(WS)              = 1
   *              - Main regulator output voltage  = Scale1 mode
-  *
-  * @param  None
-  * @retval None
   */
 void system_clock_init ()
 {
@@ -131,7 +127,7 @@ void system_clock_init ()
     Error_Handler();
   }
   
-#endif /*USE_USB_CLKSOURCE_CRSHSI48*/
+#endif
 }
 
 void USB_init ()
@@ -156,7 +152,6 @@ void LED_button_init()
 	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 }
 
-
 void display_welcome_view ()
 {
 	BSP_EPD_Init();
@@ -172,19 +167,6 @@ static void display_message (uint8_t** text_tab, uint8_t line_num)
 	for(counter = 0; counter<line_num; counter++){
 		if(text_tab[counter] !=NULL)
 			BSP_EPD_DisplayStringAt(0, LINE(counter), text_tab[counter], CENTER_MODE);
-	}
-	
-	BSP_EPD_RefreshDisplay();
-}
-
-static void display_text (uint8_t** text_tab, uint8_t line_num)
-{
-	uint8_t counter;
-	BSP_EPD_DrawImage(0, 0, 72, 172, (uint8_t*) header_image);
-	
-	for(counter = 0; counter<line_num; counter++){
-		if(text_tab[counter] !=NULL)
-			BSP_EPD_DisplayStringAt(0, LINE(counter), text_tab[counter], LEFT_MODE);
 	}
 	
 	BSP_EPD_RefreshDisplay();
@@ -235,12 +217,7 @@ void text_buffer_init ()
 	}
 	get_app_config()->USB_text_received = 0;
 	
-	get_app_config()->text_frame[get_app_config()->text_frame_length++] = 0xFE;
-}
-
-void USB_send_notify ()
-{
-	USBD_CDC_fops.Control(CDC_SEND_ENCAPSULATED_COMMAND, notify_buffer, USB_NOTIFY_BUFF_LEN);
+	get_app_config()->text_frame[get_app_config()->text_frame_length++] = M24LR04E_MESSAGE_START;
 }
 
 void get_USB_text (uint8_t value)
@@ -250,7 +227,7 @@ void get_USB_text (uint8_t value)
 	
 	if((get_app_config()->USB_text_received == 1)&&(header_buffer[0] == '>') && (header_buffer[1] == '@')){
 		get_app_config()->USB_text_received = 0;
-		get_app_config()->text_frame[get_app_config()->text_frame_length-1] = 0xFE;
+		get_app_config()->text_frame[get_app_config()->text_frame_length-1] = M24LR04E_MESSAGE_STOP;
 		get_app_config()->mode = TEXT_RECEIVED;
 		get_app_config()->start_flag = 1;
 	}
@@ -260,6 +237,12 @@ void get_USB_text (uint8_t value)
 	
 	if((get_app_config()->USB_text_received == 0) &&(header_buffer[0] == '@') && (header_buffer[1] == '<'))
 		get_app_config()->USB_text_received = 1;
+}
+
+
+void USB_send_notify ()
+{
+	USBD_CDC_fops.Control(CDC_SEND_ENCAPSULATED_COMMAND, (uint8_t*)(SUCCESS), COUNTOF((uint8_t*)(SUCCESS)));
 }
 
 static void parse_text_to_line (uint8_t* text, uint8_t text_length, uint8_t** parse_text)
@@ -317,28 +300,21 @@ void display_received_text ()
 	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
 
-static ErrorStatus check_nfc_ready ()
+static ErrorStatus get_nfc_connect ()
 {
 	uint8_t read_value;
 
-	M24LR04E_read_byte(M24LR04E_CONFIG1_ADDRESS, &read_value);
-	if (read_value != 0xE1)
+	M24LR04E_read_byte(M24LR04E_WHO_I_AM_ADDRESS, &read_value);
+	if (read_value != M24LR04E_WHO_I_AM_VALUE)
      return ERROR;
-  
-  M24LR04E_read_byte(M24LR04E_CONFIG2_ADDRESS, &read_value);
-  if (read_value != 0x54)
-      return ERROR;
 
   return SUCCESS;	
 }
 
 void check_nfc_connect ()
 {
-	uint8_t read_value;
-
 	M24LR04E_init();
-	M24LR04E_read_byte(M24LR04E_CONFIG1_ADDRESS, &read_value);
-	if (read_value == 0xE1){
+	if (get_nfc_connect()) {
 		BSP_LED_On(LED3);
 		get_app_config()->mode = USB_SEND_TEXT;
 		get_app_config()->start_flag = 1;
@@ -352,13 +328,14 @@ ErrorStatus send_text_to_nfc ()
 	uint8_t text_length =  get_app_config()->text_frame_length;
   uint8_t *data_pointer = get_app_config()->text_frame;
   uint16_t text_address = M24LR04E_TEXT_ADDRESS;
+	uint8_t message_config[4] = {0};
   
   iteration_num = text_length/4;
   if(iteration_num%4 !=0)
     iteration_num+=1;
   
   M24LR04E_init();
-  if(check_nfc_ready() == SUCCESS){
+  if(get_nfc_connect() == SUCCESS){
     for(counter=0; counter<iteration_num; counter++){
       M24LR04E_write_page(text_address, data_pointer);
 			HAL_Delay(10);
@@ -372,9 +349,16 @@ ErrorStatus send_text_to_nfc ()
     return ERROR;
 
 	HAL_Delay(10);
-  M24LR04E_write_byte(M24LR04E_MESSAGE_LEN_ADDRESS, text_length);
-  HAL_Delay(10);
+	message_config[0] = text_length+1;
+	message_config[1] = ((uint8_t)(M24LR04E_MESSAGE_CONFIG_VALUE>>16));
+	message_config[2] = ((uint8_t)(M24LR04E_MESSAGE_CONFIG_VALUE>>8));
+	message_config[3] = (uint8_t)(M24LR04E_MESSAGE_CONFIG_VALUE);
+  M24LR04E_write_page(M24LR04E_MESSAGE_CONFIG_ADDRESS, message_config);
   
+	HAL_Delay(10);
+	M24LR04E_write_byte(M24LR04E_CONFIG_ADDRESS, text_length+5);
+	
+	HAL_Delay(10);
   M24LR04E_deinit();
   
   return SUCCESS;
@@ -387,11 +371,6 @@ void LEDs_blink ()
 	HAL_Delay(400);
 }
 
-/**
-  * @brief EXTI line detection callback.
-  * @param GPIO_Pin: Specifies the pins connected EXTI line
-  * @retval None
-  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == KEY_BUTTON_PIN) {
@@ -400,18 +379,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   }
 }
 
-/**
-  * @brief  I2C error callbacks
-  * @param  I2CxHandle: I2C handle
-  * @note   This example shows a simple way to report transfer error, and you can
-  *         add your own implementation.
-  * @retval None
-  */
  void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2CxHandle)
 { 
-  while(1)
-  {
-  } 
+  get_app_config()->error_code = (uint8_t*)("3");
+	Error_Handler();
 }
 
 app_config_p get_app_config ()
@@ -419,14 +390,11 @@ app_config_p get_app_config ()
 	return &app_config;
 }
 
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
 void Error_Handler ()
 {
 	if(get_app_config()->mode != NFC_DETECT){
-		while(1){ }
+		error_message(get_app_config()->error_code);
+		while(1){ 
+		}
 	}
 }

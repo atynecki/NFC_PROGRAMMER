@@ -7,6 +7,6 @@
 
 #define USB_RX_DATA_BUFF_SIZE  			2048
 
-extern USBD_CDC_ItfTypeDef  USBD_CDC_fops;
+extern USBD_CDC_ItfTypeDef  				USBD_CDC_fops;
 
-#endif /* __USBD_CDC_IF_H */
+#endif

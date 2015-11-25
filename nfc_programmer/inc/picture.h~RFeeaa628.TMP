@@ -2,6 +2,7 @@
 #ifndef __PICTURE_H
 #define __PICTURE_H
 
+/* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx.h"
 
 const uint8_t welcome_image[] = {
@@ -354,4 +355,4 @@ const uint8_t header_image[] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 }; 
 
-#endif
+#endif  /*__PICTURE_H*/

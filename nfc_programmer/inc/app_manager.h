@@ -14,7 +14,6 @@
 
 #define USE_USB_CLKSOURCE_CRSHSI48   1
 //#define USE_USB_CLKSOURCE_PLL        1
-
 #if !defined (USE_USB_CLKSOURCE_PLL) && !defined (USE_USB_CLKSOURCE_CRSHSI48)
  #error "Missing USB clock definition"
 #endif
@@ -28,8 +27,9 @@
 
 #define I2C_FORCE_RESET()               __HAL_RCC_I2C1_FORCE_RESET()
 #define I2C_RELEASE_RESET()             __HAL_RCC_I2C1_RELEASE_RESET()
+#define I2C_TIMING_100KHZ       				0x10A13E56 /* Analog Filter ON, Rise Time 400ns, Fall Time 100ns */
 
-/* Definition for I2C Pins */
+/* Definition for I2C pins */
 #define I2C_SCL_PIN                    	GPIO_PIN_8
 #define I2C_SCL_GPIO_PORT              	GPIOB
 #define I2C_SCL_AF                     	GPIO_AF4_I2C1
@@ -37,19 +37,18 @@
 #define I2C_SDA_GPIO_PORT              	GPIOB
 #define I2C_SDA_AF                     	GPIO_AF4_I2C1
 
-/* Definition for I2Cx's NVIC */
+/* Definition for I2C NVIC */
 #define I2C_IRQn                    		I2C1_IRQn
 #define I2C_IRQHandler              		I2C1_IRQHandler
 
-#define COUNTOF(__BUFFER__)   					(sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
-
-/* Timing samples with SYSCLK 32MHz set in SystemClock_Config() */ 
-#define I2C_TIMING_100KHZ       				0x10A13E56 /* Analog Filter ON, Rise Time 400ns, Fall Time 100ns */
-
+/** Applictaion value */
 #define MAX_TEXT_LEN                      40
 #define DISPLAY_LINE_NUMBER								 3
 #define SIGN_IN_LINE										 	14
-#define USB_NOTIFY_BUFF_LEN								 7
+
+#define COUNTOF(__BUFFER__)   						(sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
+
+/** Applictaion manager structure */
 typedef struct 
 {
 	uint8_t mode;
@@ -60,6 +59,7 @@ typedef struct
 	uint8_t* error_code;
 } app_config_t, *app_config_p;
 
+/** Mode definition */
 typedef enum MODE
 {
 	NFC_DETECT = 0,
@@ -68,7 +68,7 @@ typedef enum MODE
 	TEXT_SEND
 } mode;
 
-/* Error code value */
+/** Application text definition */
 #define ERROR_DEAFULT									"0"
 
 #define CONNECT_NFC_BOARD_PART1				"CONNECT"
@@ -81,6 +81,7 @@ typedef enum MODE
 #define CONTINUE_TEXT_PART2						"PUSH BUTTON"
 #define CONTINUE_TEXT_PART3						"TO CONTINUE"
 
+#define SUCCESS_TEXT									"SUCCESS"
 #define ERROR_TEXT										"ERROR"
 
 void system_clock_init(void);

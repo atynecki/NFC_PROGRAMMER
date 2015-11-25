@@ -4,10 +4,7 @@
 int main(void)
 {
   HAL_Init();
-
-	/* Configure the system clock to get correspondent USB clock source */
-  system_clock_init();
-	
+	system_clock_init();
 	LED_button_init();
 	
 	USB_init();
@@ -19,13 +16,11 @@ int main(void)
 	get_app_config()->error_code = (uint8_t*)(ERROR_DEAFULT);
 	
 	HAL_Delay(1000);
-	
-  /* Infinite loop */
-  while (1)
-  {
-		switch(get_app_config()->mode){
+
+  while (1) {
+		switch(get_app_config()->mode) {
 			case NFC_DETECT:
-				if(get_app_config()->start_flag == 1){
+				if(get_app_config()->start_flag == 1) {
 					get_app_config()->start_flag = 0;
 					connect_nfc_board_message();
 					BSP_LED_Off(LED3);
@@ -62,9 +57,8 @@ int main(void)
 			break;
 			
 			default:
-				error_message(get_app_config()->error_code);
-			break;
-				
+				Error_Handler();
+			break;		
 		}
   }
 }

@@ -1,5 +1,4 @@
 
-#include "stm32l0xx_it.h"
 #include "app_manager.h"
 
 extern I2C_HandleTypeDef I2CHandle;
@@ -21,10 +20,7 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
-  /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-  }
+  Error_Handler();
 }
 
 /**
@@ -64,16 +60,20 @@ void SysTick_Handler(void)
   HAL_IncTick();
 }
 
+/**
+  * @brief  This function handles Switch interrupt
+  * @param  None
+  * @retval None
+  */
 void EXTI0_1_IRQHandler(void)
 {
   HAL_GPIO_EXTI_IRQHandler(KEY_BUTTON_PIN);
 }
 
 /**
-  * @brief  This function handles I2C event interrupt request.  
+  * @brief  This function handles I2C event interrupt request  
   * @param  None
-  * @retval None
-  * @Note   This function is redefined in "main.h" and related to I2C data transmission     
+  * @retval None   
   */
 void I2C_IRQHandler(void)
 {
@@ -82,7 +82,7 @@ void I2C_IRQHandler(void)
 }
 
 /**
-  * @brief  This function handles USB Handler.
+  * @brief  This function handles USB Handler
   * @param  None
   * @retval None
   */
