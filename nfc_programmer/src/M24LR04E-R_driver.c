@@ -20,6 +20,7 @@ void M24LR04E_init ()
   I2CHandle.Init.OwnAddress1      = 0xFE;
   I2CHandle.Init.OwnAddress2      = 0xFE;
   if(HAL_I2C_Init(&I2CHandle) != HAL_OK) {
+		get_app_config()->error_code = I2C_ERROR;
     Error_Handler();    
   }
 }
@@ -32,6 +33,7 @@ void M24LR04E_init ()
 void M24LR04E_deinit () 
 {
   if(HAL_I2C_DeInit(&I2CHandle) != HAL_OK) {
+		get_app_config()->error_code = I2C_ERROR;
     Error_Handler();    
   }
 }
@@ -47,6 +49,7 @@ void M24LR04E_read_byte (uint16_t address, uint8_t* buffer) {
 
   if(HAL_I2C_Mem_Read(&I2CHandle, M24LR04E_I2C_ADDRESS, address, I2C_MEMADD_SIZE_16BIT, buffer, 1, I2C_TimeOut) != HAL_OK)
   {
+		get_app_config()->error_code = I2C_ERROR;
     Error_Handler();
   } 
 }
@@ -63,6 +66,7 @@ void M24LR04E_read_buffer (uint16_t address, uint8_t buffer_length, uint8_t* buf
 	
 	if(HAL_I2C_Mem_Read(&I2CHandle, M24LR04E_I2C_ADDRESS, address, I2C_MEMADD_SIZE_16BIT, buffer, buffer_length, I2C_TimeOut) != HAL_OK)
   {
+		get_app_config()->error_code = I2C_ERROR;
     Error_Handler();
   }
 }
@@ -78,6 +82,7 @@ void M24LR04E_write_byte (uint16_t address, uint8_t value) {
   
   if(HAL_I2C_Mem_Write(&I2CHandle, M24LR04E_I2C_ADDRESS, address, I2C_MEMADD_SIZE_16BIT, &value, 1, I2C_TimeOut) != HAL_OK)
   {
+		get_app_config()->error_code = I2C_ERROR;
     Error_Handler();
   } 
 }
@@ -93,6 +98,7 @@ void M24LR04E_write_page (uint16_t address, uint8_t* buffer) {
 	
 	if(HAL_I2C_Mem_Write(&I2CHandle, M24LR04E_I2C_ADDRESS, address, I2C_MEMADD_SIZE_16BIT, buffer, M24LR04E_PAGE_SIZE, I2C_TimeOut) != HAL_OK)
   {
+		get_app_config()->error_code = I2C_ERROR;
     Error_Handler();
   } 
 }

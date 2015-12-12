@@ -3,6 +3,8 @@
 
 int main(void)
 {
+	get_app_config()->error_code = APP_OK;
+	
   HAL_Init();
 	system_clock_init();
 	LED_button_init();
@@ -13,7 +15,6 @@ int main(void)
 	
 	get_app_config()->mode = NFC_DETECT;
 	get_app_config()->start_flag = 1;
-	get_app_config()->error_code = (uint8_t*)(ERROR_DEAFULT);
 	
 	HAL_Delay(1000);
 
@@ -35,6 +36,7 @@ int main(void)
 					get_app_config()->start_flag = 0;
 					text_buffer_init();
 					USB_send_data_message();
+					USB_send_notify();
 				}
 				HAL_Delay(100);
 				break;
@@ -50,13 +52,17 @@ int main(void)
 			case TEXT_SEND:
 			if(get_app_config()->start_flag == 1) {
 				get_app_config()->start_flag = 0;
-				send_text_to_nfc();
+				if(send_text_to_nfc() != SUCCESS){
+					get_app_config()->error_code = SEND_ERROR;
+					Error_Handler();
+				}
 				continue_message();
 			}
 			LEDs_blink();
 			break;
 			
 			default:
+				get_app_config()->error_code = APP_ERROR;
 				Error_Handler();
 			break;		
 		}

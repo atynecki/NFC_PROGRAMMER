@@ -63,8 +63,12 @@ void system_clock_init ()
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
-  HAL_RCC_OscConfig(&RCC_OscInitStruct); 
- 
+  if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+	{
+		get_app_config()->error_code = CLOCK_ERROR;
+    Error_Handler();
+  }
+  
   /* Select HSI48 as USB clock source */
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
   PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
@@ -77,7 +81,11 @@ void system_clock_init ()
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;  
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;  
-  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0);
+  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0)!= HAL_OK)
+	{
+		get_app_config()->error_code = CLOCK_ERROR;
+    Error_Handler();
+  }
     
   /*Configure the clock recovery system (CRS)**********************************/
   
@@ -107,6 +115,7 @@ void system_clock_init ()
   RCC_OscInitStruct.PLL.PLLDIV      = RCC_PLLDIV_3;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct)!= HAL_OK)
   {
+		get_app_config()->error_code = CLOCK_ERROR;
     Error_Handler();
   }
   
@@ -124,6 +133,7 @@ void system_clock_init ()
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;  
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1)!= HAL_OK)
   {
+		get_app_config()->error_code = CLOCK_ERROR;
     Error_Handler();
   }
   
@@ -133,16 +143,32 @@ void system_clock_init ()
 void USB_init ()
 {
 	/* Init Device Library */
-  USBD_Init(&USBD_Device, &VCP_Desc, 0);
+  if(USBD_Init(&USBD_Device, &VCP_Desc, 0)!= USBD_OK)
+	{
+		get_app_config()->error_code = USB_ERROR;
+    Error_Handler();
+	}
   
   /* Add Supported Class */
-  USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
+  if(USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS)!= USBD_OK)
+	{
+		get_app_config()->error_code = USB_ERROR;
+    Error_Handler();
+	}
   
   /* Add CDC Interface Class */
-  USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
+  if(USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops)!= USBD_OK)
+	{
+		get_app_config()->error_code = USB_ERROR;
+    Error_Handler();
+	}
   
   /* Start Device Process */
-  USBD_Start(&USBD_Device);
+  if(USBD_Start(&USBD_Device)!= USBD_OK)
+	{
+		get_app_config()->error_code = USB_ERROR;
+    Error_Handler();
+	}
 }
 
 void LED_button_init()
@@ -154,7 +180,11 @@ void LED_button_init()
 
 void display_welcome_view ()
 {
-	BSP_EPD_Init();
+	if(BSP_EPD_Init()!= EPD_OK)
+	{
+		get_app_config()->error_code = DISPLAY_ERROR;
+    Error_Handler();
+	}
 	BSP_EPD_DrawImage(0, 0, 72, 172, (uint8_t*) welcome_image);
 	BSP_EPD_RefreshDisplay();
 }
@@ -183,9 +213,9 @@ void connect_nfc_board_message ()
 
 void USB_send_data_message ()
 {
-	message_tab[2] = NULL;
-	message_tab[1] = (uint8_t*)(USB_SEND_TEXT_PART1);
-	message_tab[0] = (uint8_t*)(USB_SEND_TEXT_PART2);
+	message_tab[2] = (uint8_t*)(USB_SEND_TEXT_PART1);
+	message_tab[1] = (uint8_t*)(USB_SEND_TEXT_PART2);
+	message_tab[0] = (uint8_t*)(USB_SEND_TEXT_PART3);
 	
 	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
@@ -199,11 +229,13 @@ void continue_message ()
 	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
 
-void error_message (uint8_t* error_code)
+
+void error_message (uint8_t error_code)
 {
+	error_code +=48;
 	message_tab[2] = NULL;
 	message_tab[1] = (uint8_t*)(ERROR_TEXT);
-	message_tab[0] = error_code;
+	message_tab[0] = &error_code;
 	
 	display_message(message_tab, DISPLAY_LINE_NUMBER);
 }
@@ -225,7 +257,9 @@ void get_USB_text (uint8_t value)
 	header_buffer[0] = header_buffer[1];
 	header_buffer[1] = value;
 	
-	if((get_app_config()->USB_text_received == 1)&&(header_buffer[0] == '>') && (header_buffer[1] == '@')){
+	if((get_app_config()->USB_text_received == 1)&&(((header_buffer[0] == '>') && (header_buffer[1] == '@')) ||
+			(get_app_config()->text_frame_length == MAX_TEXT_LEN +2))) 
+	{
 		get_app_config()->USB_text_received = 0;
 		get_app_config()->text_frame[get_app_config()->text_frame_length-1] = M24LR04E_MESSAGE_STOP;
 		get_app_config()->mode = TEXT_RECEIVED;
@@ -242,7 +276,11 @@ void get_USB_text (uint8_t value)
 
 void USB_send_notify ()
 {
-	USBD_CDC_fops.Control(CDC_SEND_ENCAPSULATED_COMMAND, (uint8_t*)(SUCCESS), COUNTOF((uint8_t*)(SUCCESS)));
+	if(USBD_CDC_fops.Control(CDC_SEND_ENCAPSULATED_COMMAND, (uint8_t*)(SUCCESS_TEXT), NOTIFY_LENGHT)!=USBD_OK)
+	{
+		get_app_config()->error_code = USB_ERROR;
+    Error_Handler();
+	}
 }
 
 static void parse_text_to_line (uint8_t* text, uint8_t text_length, uint8_t** parse_text)
@@ -374,6 +412,9 @@ void LEDs_blink ()
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == KEY_BUTTON_PIN) {
+		if(get_app_config()->error_code != APP_OK){  
+			NVIC_SystemReset(); 			
+		}
 		get_app_config()->mode = NFC_DETECT;
 		get_app_config()->start_flag = 1;
   }
@@ -381,8 +422,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
  void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2CxHandle)
 { 
-  get_app_config()->error_code = (uint8_t*)("3");
-	Error_Handler();
+	if(get_app_config()->mode != NFC_DETECT){
+		get_app_config()->error_code = I2C_ERROR;
+		Error_Handler();
+	}
 }
 
 app_config_p get_app_config ()
@@ -392,9 +435,10 @@ app_config_p get_app_config ()
 
 void Error_Handler ()
 {
-	if(get_app_config()->mode != NFC_DETECT){
-		error_message(get_app_config()->error_code);
-		while(1){ 
-		}
+	if((get_app_config()->error_code == I2C_ERROR) && (get_app_config()->mode == NFC_DETECT))
+		return;
+	
+	error_message(get_app_config()->error_code);
+	while(1){ 
 	}
 }

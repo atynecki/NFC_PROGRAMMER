@@ -14,9 +14,6 @@
 
 #define USE_USB_CLKSOURCE_CRSHSI48   1
 //#define USE_USB_CLKSOURCE_PLL        1
-#if !defined (USE_USB_CLKSOURCE_PLL) && !defined (USE_USB_CLKSOURCE_CRSHSI48)
- #error "Missing USB clock definition"
-#endif
 
 /** I2C config */
 #define I2C                              I2C1
@@ -45,6 +42,7 @@
 #define MAX_TEXT_LEN                      40
 #define DISPLAY_LINE_NUMBER								 3
 #define SIGN_IN_LINE										 	14
+#define NOTIFY_LENGHT										 	 7	
 
 #define COUNTOF(__BUFFER__)   						(sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 
@@ -56,7 +54,7 @@ typedef struct
 	uint8_t text_frame[MAX_TEXT_LEN+2];
 	uint8_t text_frame_length;
 	uint8_t USB_text_received;
-	uint8_t* error_code;
+	uint8_t error_code;
 } app_config_t, *app_config_p;
 
 /** Mode definition */
@@ -68,14 +66,26 @@ typedef enum MODE
 	TEXT_SEND
 } mode;
 
+/** Mode definition */
+typedef enum ERROR_FLAG
+{
+	APP_OK = 0,
+	CLOCK_ERROR,
+	USB_ERROR,
+	DISPLAY_ERROR,
+	I2C_ERROR,
+	SEND_ERROR,
+	APP_ERROR
+} error_code;
+
 /** Application text definition */
-#define ERROR_DEAFULT									"0"
 
 #define CONNECT_NFC_BOARD_PART1				"CONNECT"
 #define CONNECT_NFC_BOARD_PART2				"NFC BOARD"
 
 #define USB_SEND_TEXT_PART1						"SEND TEXT"
 #define USB_SEND_TEXT_PART2						"TO PROGRAM"
+#define USB_SEND_TEXT_PART3						"MAX 40 SIGNS"
 
 #define CONTINUE_TEXT_PART1						"PROGRAM END"
 #define CONTINUE_TEXT_PART2						"PUSH BUTTON"
@@ -92,7 +102,7 @@ void display_welcome_view(void);
 void connect_nfc_board_message(void);
 void USB_send_data_message(void);
 void continue_message(void);
-void error_message (uint8_t* error_code);
+void error_message (uint8_t error_code);
 
 void check_nfc_connect(void);
 
